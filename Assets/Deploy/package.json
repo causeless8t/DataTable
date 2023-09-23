@@ -1,0 +1,15 @@
+{
+  "name": "com.causeless3t.datatable",
+  "version": "1.0.0",
+  "displayName": "DataTable",
+  "description": "데이터 테이블",
+  "changelogUrl": "ssh://3t@causeless3t.synology.me/volume1/homes/3T/git/data-table.git/Assets/Deploy/CHANGELOG.md",
+  "documentationUrl": "ssh://3t@causeless3t.synology.me/volume1/homes/3T/git/data-table.git/Assets/Deploy/README.md",
+  "licensesUrl": "ssh://3t@causeless3t.synology.me/volume1/homes/3T/git/data-table.git/Assets/Deploy/LICENSE.md",
+  "unity": "2022.3",
+  "author": "causeless3t",
+  "keywords": [
+    "DataTable"
+  ],
+  "gitDependencies": {}
+}
