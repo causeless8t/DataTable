@@ -1,6 +1,5 @@
 {
   "dependencies": {
-    "com.e7.protobuf-unity": "https://github.com/5argon/protobuf-unity.git",
     "com.unity.collab-proxy": "2.0.7",
     "com.unity.feature.development": "1.0.1",
     "com.unity.textmeshpro": "3.0.6",

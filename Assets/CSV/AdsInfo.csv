@@ -1,0 +1,41 @@
+Primary/long:ID,long:BaseObjectID,int:AdsType,#광고타입,string:URL,string:AddressablePath,string:Link,Get/AdsLinkType:LinkType,int:PlayTime,#비고/광고설명,Set/AdsLinkType
+1186001,1186,2,유튜브,https://youtu.be/lTOGdTZlxi0,,https://cpbv.onelink.me/L3lc?pid=naver_int&c=BRD_allstar&af_siteid=Com2verse&af_web_dp=https%3A%2F%2Fwithhive.com%2Fgames%2F601&af_adset=Main&af_ad=branding&af_click_lookback=7d,ExternalBrowser,30061,오피스_컴프야V23 통합브랜딩_7월,WebView
+1186002,1186,2,유튜브,https://youtu.be/75M7-mso4Ng,,https://mlb9irivals.onelink.me/riPd/q178116x,ExternalBrowser,30061,오피스_MLB라이벌 프리먼x보가츠,ExternalBrowser
+1186003,1186,2,유튜브,https://youtu.be/cR-asEbp7nE,,https://afcw.onelink.me/5bFt/cy3s88dc,ExternalBrowser,71321,오피스_낚시의신:크루 시네마틱
+1186004,1186,2,유튜브,https://youtu.be/_gArxTZXnmA,,https://afcw.onelink.me/5bFt/cy3s88dc,ExternalBrowser,15041,오피스_낚시의신:크루 프로모션
+1186005,1186,2,유튜브,https://youtu.be/tGtwiYAOIEE,,https://swcc.onelink.me/IMzL/slm6s4cr,ExternalBrowser,138641,오피스_서머너즈워:크로니클 공식인게임
+1186006,1186,2,유튜브,https://youtu.be/LwYCnm1yuj8,,https://minigame.onelink.me/WFoP/3787kv7h,ExternalBrowser,43441,오피스_미니게임천국 시네마틱
+1186007,1186,2,유튜브,https://youtu.be/0NSYwWR2gak,,https://minigame.onelink.me/WFoP/3787kv7h,ExternalBrowser,30061,오피스_미니게임천국 황은정
+1268001,1268,1,비디오,https://c2v-ad-1318422669.cos.ap-seoul.myqcloud.com/c2v/ad/20230720085729616.mp4,,,ExternalBrowser,15382,공유오피스_SK네트웍스
+1268002,1268,2,유튜브,https://youtu.be/XJxOatSCEag,,https://bit.ly/3PTVmEo,ExternalBrowser,77181,공유오피스_하나금융
+1268003,1268,2,유튜브,https://youtu.be/lcmoyD3m89c,,https://bit.ly/3PTVmEo,ExternalBrowser,15041,공유오피스_하나금융
+1268004,1268,1,비디오,https://c2v-ad-1318422669.cos.ap-seoul.myqcloud.com/c2v/ad/20230719042216597.mp4,,http://www.kyowon.co.kr/,ExternalBrowser,66966,공유오피스_교원
+1272001,1272,2,유튜브,https://youtu.be/nWho8hijcwI,,,WebView,28000,[월드]World_Screen_케이 축전 영상
+1273001,1273,2,유튜브,https://youtu.be/BMQD3G9g7dE,,,WebView,56000,[월드]World_Screen_컴투버스 소개 영상
+1313001,1313,2,유튜브,https://youtu.be/kdjZnxiOBWI,,,WebView,35000,[월드]World_Screen_에일리 축전 영상
+1314001,1314,2,유튜브,https://youtu.be/qdDoxEJFwWc,,,WebView,54000,[월드]World_Screen_윤상 축전 영상
+1315001,1315,2,유튜브,https://youtu.be/BMQD3G9g7dE,,,WebView,56000,[월드]World_Screen_컴투버스 소개 영상
+1316001,1316,2,유튜브,https://youtu.be/HVOzY20nApI,,,WebView,44000,[월드]World_Screen_KCM 축전 영상
+1317001,1317,2,유튜브,https://youtu.be/nWho8hijcwI,,,WebView,28000,[월드]World_Screen_케이 축전 영상
+1318001,1318,2,유튜브,https://youtu.be/BMQD3G9g7dE,,,WebView,56000,[월드]World_Screen_컴투버스 소개 영상
+1319001,1319,2,유튜브,https://youtu.be/HVOzY20nApI,,,WebView,44000,[월드]World_Screen_KCM 축전 영상
+1308001,1308,2,유튜브,https://youtu.be/XJxOatSCEag,,https://bit.ly/3PTVmEo,WebView,77000,[월드]World_Screen_Video_Hana.prefab
+1308002,1308,2,유튜브,https://youtu.be/lcmoyD3m89c,,https://bit.ly/3PTVmEo,WebView,15000,[월드]World_Screen_Video_Hana.prefab
+1308003,1308,3,이미지,https://c2v-ad-1318422669.cos.ap-seoul.myqcloud.com/c2v/ad/20230721023130241.jpg,,https://bit.ly/44OQXqj,WebView,4000,[월드]World_Screen_Video_Hana.prefab
+1309001,1309,2,유튜브,https://www.youtube.com/watch?v=zQzRYGGdiMo,,https://www.kyobobook.co.kr/?&utm_source=etc&utm_medium=display&utm_campaign=event_com2vers-230713,WebView,14000,[월드]World_Screen_Video_Kyobo.prefab
+1309002,1309,3,이미지,https://c2v-ad-1318422669.cos.ap-seoul.myqcloud.com/c2v/ad/20230721022939615.png,,https://hottracks.kyobobook.co.kr/ht/evnExh/evnExhDetail/86782?utm_source=com2vers&utm_medium=display&utm_campaign=%ec%bb%b4%ed%88%ac%eb%b2%84%ec%8a%a4,WebView,4000,[월드]World_Screen_Video_Kyobo.prefab
+1310001,1310,2,유튜브,https://c2v-ad-1318422669.cos.ap-seoul.myqcloud.com/c2v/ad/20230719042216597.mp4,,http://www.kyowon.co.kr/,WebView,66000,[월드]World_Screen_Video_Kyowon.prefab
+1310002,1310,3,이미지,https://c2v-ad-1318422669.cos.ap-seoul.myqcloud.com/c2v/ad/20230901100652424.jpg,,http://www.kyowon.co.kr/,WebView,4000,[월드]World_Screen_Video_Kyowon.prefab
+1310003,1310,3,이미지,https://c2v-ad-1318422669.cos.ap-seoul.myqcloud.com/c2v/ad/20230901100815501.jpg,,http://www.kyowon.co.kr/,WebView,4000,[월드]World_Screen_Video_Kyowon.prefab
+1311001,1311,1,비디오,https://c2v-ad-1318422669.cos.ap-seoul.myqcloud.com/c2v/ad/20230720085729616.mp4,,,WebView,15000,[월드]World_Screen_Video_SK.prefab
+1311002,1311,2,유튜브,https://youtu.be/ip-R-Oqhz8E,,https://www.walkerhill.com/,WebView,30000,[월드]World_Screen_Video_SK.prefab
+1311003,1311,2,유튜브,https://youtu.be/2QlBz3yg4z4,,https://www.walkerhill.com/,WebView,140000,[월드]World_Screen_Video_SK.prefab
+1311004,1311,2,유튜브,https://youtu.be/cZZvgZqrtYI,,https://www.walkerhill.com/,WebView,120000,[월드]World_Screen_Video_SK.prefab
+1311005,1311,2,유튜브,https://youtu.be/6NfU5ESKpWQ,,https://www.walkerhill.com/,WebView,70000,[월드]World_Screen_Video_SK.prefab
+1311006,1311,2,유튜브,https://youtu.be/BjIG9E8pL7E,,https://www.speedmate.com,WebView,19000,[월드]World_Screen_Video_SK.prefab
+1311007,1311,2,유튜브,https://youtu.be/GONyNBJxOjo,,https://walkerhill.xyz,WebView,61000,[월드]World_Screen_Video_SK.prefab
+1255001,1255,3,이미지,https://c2v-ad-1318422669.cos.ap-seoul.myqcloud.com/c2v/ad/20230721023130241.jpg,,https://bit.ly/44OQXqj,WebView,4000,World_Banner_Horizontal_01_하나은행 이미지
+1255002,1255,3,이미지,https://c2v-ad-1318422669.cos.ap-seoul.myqcloud.com/c2v/ad/20230721022939615.png,,https://hottracks.kyobobook.co.kr/ht/evnExh/evnExhDetail/86782?utm_source=com2vers&utm_medium=display&utm_campaign=%ec%bb%b4%ed%88%ac%eb%b2%84%ec%8a%a4,WebView,4000,World_Banner_Horizontal_02_교보 핫트렉스 이미지
+1255003,1255,3,이미지,https://c2v-ad-1318422669.cos.ap-seoul.myqcloud.com/c2v/ad/20230904074324439.jpg,,https://www.walkerhill.com/,WebView,4000,World_Banner_Horizontal_01.prefab _SK 워커힐
+1255004,1255,3,이미지,https://c2v-ad-1318422669.cos.ap-seoul.myqcloud.com/c2v/ad/20230904074621598.jpg,,https://www.walkerhill.com/,WebView,4000,World_Banner_Horizontal_01.prefab _SK 워커힐
+1255005,1255,3,이미지,https://c2v-ad-1318422669.cos.ap-seoul.myqcloud.com/c2v/ad/20230904074742056.jpg,,https://www.walkerhill.com/,WebView,4000,World_Banner_Horizontal_01.prefab _SK 워커힐
