@@ -18,7 +18,30 @@ namespace Causeless3t.Data.Editor
         private static readonly List<Task> WorkList = new();
         private static int CurrentStep = 0;
         private static string[] CSVFilePaths;
-        private static Dictionary<string, List<string>> ColumnDic = new();
+        private static Dictionary<string, SchemeInfo> SchemeDic = new();
+
+        internal class SchemeInfo
+        {
+            public enum eFeatureType
+            {
+                None = 0,
+                Comment,
+                Primary,
+                Set,
+                Get
+            }
+            
+            public List<string> Names;
+            public List<string> Types;
+            public List<eFeatureType> Features;
+
+            public SchemeInfo(int columnCount)
+            {
+                Names = new(columnCount);
+                Types = new(columnCount);
+                Features = new(columnCount);
+            }
+        }
 
         public static async Task ConvertToDataAsync(string[] filePaths)
         {
@@ -31,7 +54,7 @@ namespace Causeless3t.Data.Editor
 
         private static void InitializeWorks()
         {
-            ColumnDic.Clear();
+            SchemeDic.Clear();
             WorkList.Clear();
             CurrentStep = 0;
 
@@ -46,8 +69,8 @@ namespace Causeless3t.Data.Editor
             ShowProgress("Convert CSV to Protobuf Scheme");
             foreach (var path in CSVFilePaths)
             {
-                await ParseCSV(path);
-                await Task.Yield();
+                if (!await ParseCSV(path)) continue;
+                await CreateSchemeFile(Path.GetFileNameWithoutExtension(path));
             }
         }
 
@@ -66,40 +89,81 @@ namespace Causeless3t.Data.Editor
         #endregion Convert Process
 
         #region Scheme
-        private static async Task ParseCSV(string filePath)
+        private static async Task<bool> ParseCSV(string filePath)
         {
             var lines = await File.ReadAllLinesAsync(filePath);
-            if (lines.Length == 0) return;
+            if (lines.Length == 0) return false;
             var columns = lines[0].Split(',');
-            if (columns.Length == 0) return;
-
-            var fileName = Path.GetFileNameWithoutExtension(filePath);
-            await ParseSchemeLine(fileName, columns);
+            if (columns.Length == 0) return false;
+            
+            ParseSchemeLine(Path.GetFileNameWithoutExtension(filePath), columns);
+            return true;
         }
 
-        private static async Task ParseSchemeLine(string fileName, string[] columns)
+        private static void ParseSchemeLine(string fileName, string[] columns)
         {
             RemovePrevSchemeFiles(fileName);
-            if (!ColumnDic.TryGetValue(fileName, out var columnList))
+            if (!SchemeDic.TryGetValue(fileName, out var schemeInfo))
             {
-                columnList = new List<string>();
-                ColumnDic.TryAdd(fileName, columnList);
+                schemeInfo = new SchemeInfo(columns.Length);
+                SchemeDic.TryAdd(fileName, schemeInfo);
             }
-            columnList.Clear();
             
-            var saveFilePath = Path.Combine(SchemeDirPath, fileName + ".proto");
-            await using var fs = new FileStream(saveFilePath, FileMode.CreateNew);
-            await using var sw = new StreamWriter(fs);
-            await sw.WriteAsync(DefaultProtoImportLine);
             for (int i=0; i<columns.Length; ++i)
             {
                 var column = columns[i];
                 if (column.StartsWith("#"))
                 {
-                    columnList.Add("#");
+                    AddFeatureColumn(schemeInfo);
                     continue;
                 }
-                if (column.StartsWith())
+                
+                var featureSplit = column.Split('/');
+                if (featureSplit.Length == 2)
+                {
+                    if (!IsValidTypeFeature(featureSplit[0]))
+                    {
+                        AddFeatureColumn(schemeInfo);
+                        continue;
+                    }
+                    
+                    var featureType = featureSplit[0].ToLower() switch
+                    {
+                        "primary" => SchemeInfo.eFeatureType.Primary,
+                        "set" => SchemeInfo.eFeatureType.Set,
+                        "get" => SchemeInfo.eFeatureType.Get,
+                        _ => SchemeInfo.eFeatureType.None
+                    };
+                    schemeInfo.Features.Add(featureType);
+
+                    switch (featureType)
+                    {
+                        case SchemeInfo.eFeatureType.Primary:
+                            column = featureSplit[1];
+                            break;
+                        case SchemeInfo.eFeatureType.Set:
+                        case SchemeInfo.eFeatureType.Get:
+                            schemeInfo.Types.Add(featureSplit[1]);
+                            schemeInfo.Names.Add("");
+                            continue;
+                    }
+                }
+                else if (featureSplit.Length != 0)
+                {
+                    AddFeatureColumn(schemeInfo);
+                    continue;
+                }
+                
+                var split = column.Split(':');
+                if (split.Length != 2 || !IsValidTypeValue(split[0]))
+                {
+                    AddFeatureColumn(schemeInfo);
+                    continue;
+                }
+                schemeInfo.Types.Add(split[0]);
+                schemeInfo.Names.Add(split[1]);
+                if (schemeInfo.Features.Count < schemeInfo.Types.Count)
+                    schemeInfo.Features.Add(SchemeInfo.eFeatureType.None);
             }
         }
 
@@ -111,6 +175,39 @@ namespace Causeless3t.Data.Editor
                 File.Delete(csFilePath);
             if (File.Exists(protoFilePath))
                 File.Delete(protoFilePath);
+        }
+
+        private static bool IsValidTypeFeature(string feature) => feature.ToLower().Equals("primary") ||
+                                                                  feature.ToLower().Equals("set") ||
+                                                                  feature.ToLower().Equals("get");
+        
+        private static bool IsValidTypeValue(string value) => value.ToLower().Equals("string") ||
+                                                              value.ToLower().Equals("int") ||
+                                                              value.ToLower().Equals("long") ||
+                                                              value.ToLower().Equals("bool") ||
+                                                              value.ToLower().Equals("short") ||
+                                                              value.ToLower().Equals("vector2") ||
+                                                              value.ToLower().Equals("vector3") ||
+                                                              value.ToLower().Equals("vector4") ||
+                                                              value.ToLower().Equals("float");
+
+        private static void AddFeatureColumn(SchemeInfo schemeInfo)
+        {
+            schemeInfo.Types.Add("");
+            schemeInfo.Names.Add("");
+            schemeInfo.Features.Add(SchemeInfo.eFeatureType.Comment);
+        }
+
+        private static async Task CreateSchemeFile(string fileName)
+        {
+            if (!SchemeDic.TryGetValue(fileName, out var schemeInfo)) return;
+            
+            var saveFilePath = Path.Combine(SchemeDirPath, fileName + ".proto");
+            await using var fs = new FileStream(saveFilePath, FileMode.CreateNew);
+            await using var sw = new StreamWriter(fs);
+            await sw.WriteAsync(DefaultProtoImportLine);
+            
+            
         }
         #endregion Scheme
         
