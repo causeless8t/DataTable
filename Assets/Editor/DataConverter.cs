@@ -13,7 +13,11 @@ namespace Causeless3t.Data.Editor
     {
         private static readonly string SchemeDirPath = Path.Combine(Application.dataPath, "Deploy/Runtime/Scheme");
         private static readonly string DataDirPath = Path.Combine(Application.dataPath, "Deploy/Runtime/Data");
-        private static readonly string DefaultProtoImportLine = "syntax = \"proto3\";\npackage Protocols;\n"; 
+        private static readonly string DefaultProtoImportLine = "syntax = \"proto3\";\npackage Protocols;";
+        private static readonly string BaseProtoFilePath = Path.Combine(SchemeDirPath, "Base.proto");
+        private static readonly string BaseProtoFileContents = "message Vector2 {\n  float x = 1;\n  float y = 2;\n}\n" +
+                                                               "message Vector3 {\n  float x = 1;\n  float y = 2;\n  float z = 3;\n}\n" +
+                                                               "message Vector4 {\n  float x = 1;\n  float y = 2;\n  float z = 3;\n  float w = 4;\n}\n";
 
         #region Convert Process
         private static readonly List<Task> WorkList = new();
@@ -44,16 +48,13 @@ namespace Causeless3t.Data.Editor
             }
         }
 
-        public static void ConvertToDataAsync(string[] filePaths)
+        public static async void ConvertToDataAsync(string[] filePaths)
         {
             CSVFilePaths = filePaths;
             InitializeWorks();
 
             foreach (var work in WorkList)
-            {
-                work.Start();
-                work.Wait();
-            }
+                await work;
         }
 
         private static void InitializeWorks()
@@ -62,13 +63,25 @@ namespace Causeless3t.Data.Editor
             WorkList.Clear();
             CurrentStep = 0;
 
-            WorkList.Add(new Task(ConvertCSVToSchemeProto));
-            WorkList.Add(new Task(CompileProtobuf));
+            WorkList.Add(CreateBaseProtoFile());
+            WorkList.Add(ConvertCSVToSchemeProto());
+            WorkList.Add(CompileProtobuf());
             
             ShowProgress("Initialize");
         }
+        
+        private static async Task CreateBaseProtoFile()
+        {
+            if (File.Exists(BaseProtoFilePath)) return;
+            
+            await using var fs = new FileStream(BaseProtoFilePath, FileMode.CreateNew);
+            await using var sw = new StreamWriter(fs);
+            await sw.WriteLineAsync(DefaultProtoImportLine);
+            await sw.WriteLineAsync("");
+            await sw.WriteLineAsync(BaseProtoFileContents);
+        }
 
-        private static async void ConvertCSVToSchemeProto()
+        private static async Task ConvertCSVToSchemeProto()
         {
             ShowProgress("Convert CSV to Protobuf Scheme");
             foreach (var path in CSVFilePaths)
@@ -78,10 +91,12 @@ namespace Causeless3t.Data.Editor
             }
         }
 
-        private static async void CompileProtobuf()
+        private static Task CompileProtobuf()
         {
             ShowProgress("Compile Protobuf");
-            await CompileAllInProject();
+            AssetDatabase.Refresh();
+            CompileAllInProject();
+            return Task.CompletedTask;
         }
         
         private static void ShowProgress(string message)
@@ -98,7 +113,7 @@ namespace Causeless3t.Data.Editor
             var lines = await File.ReadAllLinesAsync(filePath);
             if (lines.Length == 0) return false;
             var columns = lines[0].Split(',');
-            if (columns.Length == 0) return false;
+            if (columns.Length <= 1) return false;
             
             ParseSchemeLine(Path.GetFileNameWithoutExtension(filePath), columns);
             return true;
@@ -146,14 +161,14 @@ namespace Causeless3t.Data.Editor
                             continue;
                     }
                 }
-                else if (featureSplit.Length != 0)
+                else if (featureSplit.Length != 1)
                 {
                     AddFeatureColumn(schemeInfo);
                     continue;
                 }
                 
                 var split = column.Split(':');
-                if (split.Length != 2 || !IsValidTypeValue(split[0]))
+                if (split.Length != 2)
                 {
                     AddFeatureColumn(schemeInfo);
                     continue;
@@ -203,16 +218,6 @@ namespace Causeless3t.Data.Editor
         private static bool IsValidTypeFeature(string feature) => feature.ToLower().Equals("primary") ||
                                                                   feature.ToLower().Equals("set") ||
                                                                   feature.ToLower().Equals("get");
-        
-        private static bool IsValidTypeValue(string value) => value.ToLower().Equals("string") ||
-                                                              value.ToLower().Equals("int") ||
-                                                              value.ToLower().Equals("long") ||
-                                                              value.ToLower().Equals("bool") ||
-                                                              value.ToLower().Equals("short") ||
-                                                              value.ToLower().Equals("vector2") ||
-                                                              value.ToLower().Equals("vector3") ||
-                                                              value.ToLower().Equals("vector4") ||
-                                                              value.ToLower().Equals("float");
 
         private static void AddFeatureColumn(SchemeInfo schemeInfo)
         {
@@ -230,10 +235,10 @@ namespace Causeless3t.Data.Editor
             await using var fs = new FileStream(saveFilePath, FileMode.CreateNew);
             await using var sw = new StreamWriter(fs);
             await sw.WriteLineAsync(DefaultProtoImportLine);
-
+            await sw.WriteLineAsync("");
+            
             await WriteEnumType(filePath, sw, schemeInfo);
             await sw.WriteLineAsync("");
-
             await WriteMessageOpenBrace(sw, fileName);
 
             int index = 1;
@@ -266,7 +271,7 @@ namespace Causeless3t.Data.Editor
                 for (int j = 1; j < lines.Length; ++j)
                 {
                     var columns = lines[j].Split(',');
-                    if (columns.Length == 0) continue;
+                    if (columns.Length <= 1 || columns.Length <= i) continue;
                     await WriteIndentTab(sw);
                     await sw.WriteLineAsync($"{columns[i]} = {j-1};");
                 }
@@ -276,14 +281,14 @@ namespace Causeless3t.Data.Editor
         
         private static async Task WriteIndentTab(StreamWriter sw) => await sw.WriteAsync("  ");
         private static async Task WriteCloseBrace(StreamWriter sw) => await sw.WriteLineAsync("}");
-        private static async Task WriteEnumOpenBrace(StreamWriter sw, string name) => await sw.WriteLineAsync(string.Format("enum e{0} {", name));
-        private static async Task WriteMessageOpenBrace(StreamWriter sw, string name) => await sw.WriteLineAsync(string.Format("message {0} {", name));
+        private static async Task WriteEnumOpenBrace(StreamWriter sw, string name) => await sw.WriteLineAsync(string.Format("enum e{0} {{", name));
+        private static async Task WriteMessageOpenBrace(StreamWriter sw, string name) => await sw.WriteLineAsync(string.Format("message {0} {{", name));
         #endregion Scheme
         
         #region ProtoBuf
         private static readonly string ProtocPath = Path.Combine(Application.dataPath, "Protoc~/protoc");
         
-        private static async Task CompileAllInProject()
+        private static void CompileAllInProject()
         {
             string[] protoFiles = Directory.GetFiles(Application.dataPath, "*.proto", SearchOption.AllDirectories);
             string[] includePaths = new string[protoFiles.Length];
@@ -292,11 +297,8 @@ namespace Causeless3t.Data.Editor
                 string protoFolder = Path.GetDirectoryName(protoFiles[i]);
                 includePaths[i] = protoFolder;
             }
-            foreach (string s in protoFiles)
-            {
+            foreach (string s in protoFiles) 
                 CompileProtobufSystemPath(s, includePaths);
-                await Task.Yield();
-            }
             AssetDatabase.Refresh();
         }
 
@@ -315,7 +317,7 @@ namespace Causeless3t.Data.Editor
 
             ProcessStartInfo startInfo = new ProcessStartInfo() { FileName = ProtocPath, Arguments = finalArguments };
 
-            Process proc = new Process() { StartInfo = startInfo };
+            Process proc = new Process { StartInfo = startInfo };
             proc.StartInfo.UseShellExecute = false;
             proc.StartInfo.RedirectStandardOutput = true;
             proc.StartInfo.RedirectStandardError = true;
