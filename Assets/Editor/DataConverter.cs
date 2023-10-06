@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -12,7 +13,7 @@ namespace Causeless3t.Data.Editor
     {
         private static readonly string SchemeDirPath = Path.Combine(Application.dataPath, "Deploy/Runtime/Scheme");
         private static readonly string DataDirPath = Path.Combine(Application.dataPath, "Deploy/Runtime/Data");
-        private static readonly string DefaultProtoImportLine = "syntax = \"proto3\";\npackage Protocols;"; 
+        private static readonly string DefaultProtoImportLine = "syntax = \"proto3\";\npackage Protocols;\n"; 
 
         #region Convert Process
         private static readonly List<Task> WorkList = new();
@@ -70,7 +71,7 @@ namespace Causeless3t.Data.Editor
             foreach (var path in CSVFilePaths)
             {
                 if (!await ParseCSV(path)) continue;
-                await CreateSchemeFile(Path.GetFileNameWithoutExtension(path));
+                await CreateSchemeFile(path);
             }
         }
 
@@ -126,23 +127,17 @@ namespace Causeless3t.Data.Editor
                         AddFeatureColumn(schemeInfo);
                         continue;
                     }
-                    
-                    var featureType = featureSplit[0].ToLower() switch
-                    {
-                        "primary" => SchemeInfo.eFeatureType.Primary,
-                        "set" => SchemeInfo.eFeatureType.Set,
-                        "get" => SchemeInfo.eFeatureType.Get,
-                        _ => SchemeInfo.eFeatureType.None
-                    };
+
+                    var featureType = GetFeatureType(featureSplit[0]);
                     schemeInfo.Features.Add(featureType);
 
                     switch (featureType)
                     {
                         case SchemeInfo.eFeatureType.Primary:
+                        case SchemeInfo.eFeatureType.Get:
                             column = featureSplit[1];
                             break;
                         case SchemeInfo.eFeatureType.Set:
-                        case SchemeInfo.eFeatureType.Get:
                             schemeInfo.Types.Add(featureSplit[1]);
                             schemeInfo.Names.Add("");
                             continue;
@@ -160,7 +155,10 @@ namespace Causeless3t.Data.Editor
                     AddFeatureColumn(schemeInfo);
                     continue;
                 }
-                schemeInfo.Types.Add(split[0]);
+                if (GetFeatureType(featureSplit[0]) == SchemeInfo.eFeatureType.Get)
+                    schemeInfo.Types.Add($"e{split[0]}");
+                else
+                    schemeInfo.Types.Add(GetTypeString(split[0]));
                 schemeInfo.Names.Add(split[1]);
                 if (schemeInfo.Features.Count < schemeInfo.Types.Count)
                     schemeInfo.Features.Add(SchemeInfo.eFeatureType.None);
@@ -176,6 +174,28 @@ namespace Causeless3t.Data.Editor
             if (File.Exists(protoFilePath))
                 File.Delete(protoFilePath);
         }
+
+        private static SchemeInfo.eFeatureType GetFeatureType(string featureType) => featureType.ToLower() switch
+        {
+            "primary" => SchemeInfo.eFeatureType.Primary,
+            "set" => SchemeInfo.eFeatureType.Set,
+            "get" => SchemeInfo.eFeatureType.Get,
+            _ => SchemeInfo.eFeatureType.None
+        };
+
+        private static string GetTypeString(string name) => name.ToLower() switch
+        {
+            "string" => "string",
+            "int" => "int32",
+            "long" => "int64",
+            "bool" => "bool",
+            "short" => "int32",
+            "float" => "float",
+            "vector2" => "Vector2",
+            "vector3" => "Vector3",
+            "vector4" => "Vector4",
+            _ => throw new ArgumentException($"{name} type doesn't exist parser!")
+        };
 
         private static bool IsValidTypeFeature(string feature) => feature.ToLower().Equals("primary") ||
                                                                   feature.ToLower().Equals("set") ||
@@ -198,17 +218,63 @@ namespace Causeless3t.Data.Editor
             schemeInfo.Features.Add(SchemeInfo.eFeatureType.Comment);
         }
 
-        private static async Task CreateSchemeFile(string fileName)
+        private static async Task CreateSchemeFile(string filePath)
         {
+            var fileName = Path.GetFileNameWithoutExtension(filePath);
             if (!SchemeDic.TryGetValue(fileName, out var schemeInfo)) return;
             
             var saveFilePath = Path.Combine(SchemeDirPath, fileName + ".proto");
             await using var fs = new FileStream(saveFilePath, FileMode.CreateNew);
             await using var sw = new StreamWriter(fs);
-            await sw.WriteAsync(DefaultProtoImportLine);
-            
-            
+            await sw.WriteLineAsync(DefaultProtoImportLine);
+
+            await WriteEnumType(filePath, sw, schemeInfo);
+            await sw.WriteLineAsync("");
+
+            await WriteMessageOpenBrace(sw, fileName);
+
+            int index = 1;
+            for (int i = 0; i < schemeInfo.Types.Count; ++i)
+            {
+                switch (schemeInfo.Features[i])
+                {
+                    case SchemeInfo.eFeatureType.Comment: 
+                    case SchemeInfo.eFeatureType.Set:
+                        continue;
+                    case SchemeInfo.eFeatureType.Get:
+                    case SchemeInfo.eFeatureType.Primary:
+                    case SchemeInfo.eFeatureType.None:
+                        await WriteIndentTab(sw);
+                        await sw.WriteLineAsync($"{schemeInfo.Types[i]} {schemeInfo.Names[i]} = {index++};");
+                        break;
+                }
+            }
+            await WriteCloseBrace(sw);
         }
+
+        private static async Task WriteEnumType(string filePath, StreamWriter sw, SchemeInfo schemeInfo)
+        {
+            for (int i = 0; i < schemeInfo.Types.Count; ++i)
+            {
+                if (schemeInfo.Features[i] != SchemeInfo.eFeatureType.Set) continue;
+                
+                await WriteEnumOpenBrace(sw, schemeInfo.Types[i]);
+                var lines = await File.ReadAllLinesAsync(filePath);
+                for (int j = 1; j < lines.Length; ++j)
+                {
+                    var columns = lines[j].Split(',');
+                    if (columns.Length == 0) continue;
+                    await WriteIndentTab(sw);
+                    await sw.WriteLineAsync($"{columns[i]} = {j-1};");
+                }
+                await WriteCloseBrace(sw);
+            }
+        }
+        
+        private static async Task WriteIndentTab(StreamWriter sw) => await sw.WriteAsync("  ");
+        private static async Task WriteCloseBrace(StreamWriter sw) => await sw.WriteLineAsync("}");
+        private static async Task WriteEnumOpenBrace(StreamWriter sw, string name) => await sw.WriteLineAsync(string.Format("enum e{0} {", name));
+        private static async Task WriteMessageOpenBrace(StreamWriter sw, string name) => await sw.WriteLineAsync(string.Format("message {0} {", name));
         #endregion Scheme
         
         #region ProtoBuf
