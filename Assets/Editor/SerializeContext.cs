@@ -8,7 +8,7 @@ namespace Causeless3t.Data.Editor
     public static class SerializeContext
     {
         [MenuItem("Assets/Convert TableData")]
-        static async void ConvertToProtobuf()
+        static void ConvertToProtobuf()
         {
             var filePaths = GetAllDataFilePaths();
             
@@ -27,7 +27,7 @@ namespace Causeless3t.Data.Editor
                     Debug.Log($"{path}");
                 }
 
-                await DataConverter.ConvertToDataAsync(filePaths);
+                DataConverter.ConvertToDataAsync(filePaths);
             }
         }
         

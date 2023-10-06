@@ -44,13 +44,16 @@ namespace Causeless3t.Data.Editor
             }
         }
 
-        public static async Task ConvertToDataAsync(string[] filePaths)
+        public static void ConvertToDataAsync(string[] filePaths)
         {
             CSVFilePaths = filePaths;
             InitializeWorks();
 
             foreach (var work in WorkList)
-                await work;
+            {
+                work.Start();
+                work.Wait();
+            }
         }
 
         private static void InitializeWorks()
