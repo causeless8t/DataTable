@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
@@ -13,15 +14,17 @@ namespace Causeless3t.Data.Editor
     {
         private static readonly string SchemeDirPath = Path.Combine(Application.dataPath, "Deploy/Runtime/Scheme");
         private static readonly string DataDirPath = Path.Combine(Application.dataPath, "Deploy/Runtime/Data");
-        private static readonly string DefaultProtoImportLine = "syntax = \"proto3\";\npackage Protocols;";
+        private static readonly string DefaultProtoImportLine = "syntax = \"proto3\";\nimport \"Base.proto\";\npackage Causeless3t;";
         private static readonly string BaseProtoFilePath = Path.Combine(SchemeDirPath, "Base.proto");
-        private static readonly string BaseProtoFileContents = "message Vector2 {\n  float x = 1;\n  float y = 2;\n}\n" +
+        private static readonly string BaseProtoFileContents = "syntax = \"proto3\";\npackage Causeless3t;\n\n" + 
+                                                               "message Vector2 {\n  float x = 1;\n  float y = 2;\n}\n" +
                                                                "message Vector3 {\n  float x = 1;\n  float y = 2;\n  float z = 3;\n}\n" +
                                                                "message Vector4 {\n  float x = 1;\n  float y = 2;\n  float z = 3;\n  float w = 4;\n}\n";
 
         #region Convert Process
         private static readonly List<Task> WorkList = new();
-        private static int CurrentStep = 0;
+        private static string CurrentMessage;
+        private static int CurrentStep;
         private static string[] CSVFilePaths;
         private static Dictionary<string, SchemeInfo> SchemeDic = new();
 
@@ -53,8 +56,18 @@ namespace Causeless3t.Data.Editor
             CSVFilePaths = filePaths;
             InitializeWorks();
 
-            foreach (var work in WorkList)
+            for (int i=0; i<WorkList.Count; ++i)
+            {
+                CurrentStep = i + 1;
+                var work = WorkList[i];
+                work.Start();
+                ShowProgress(CurrentMessage);
                 await work;
+            }
+            
+            await Task.Yield();
+            EditorUtility.ClearProgressBar();
+            AssetDatabase.Refresh();
         }
 
         private static void InitializeWorks()
@@ -63,27 +76,27 @@ namespace Causeless3t.Data.Editor
             WorkList.Clear();
             CurrentStep = 0;
 
-            WorkList.Add(CreateBaseProtoFile());
-            WorkList.Add(ConvertCSVToSchemeProto());
-            WorkList.Add(CompileProtobuf());
+            WorkList.Add(new Task(CreateBaseProtoFile));
+            WorkList.Add(new Task(ConvertCSVToSchemeProto));
+            WorkList.Add(new Task(CompileProtobuf));
+            // TODO: Add to Data Parser
             
             ShowProgress("Initialize");
         }
         
-        private static async Task CreateBaseProtoFile()
+        private static async void CreateBaseProtoFile()
         {
+            CurrentMessage = "Create Base.proto File";
             if (File.Exists(BaseProtoFilePath)) return;
             
             await using var fs = new FileStream(BaseProtoFilePath, FileMode.CreateNew);
             await using var sw = new StreamWriter(fs);
-            await sw.WriteLineAsync(DefaultProtoImportLine);
-            await sw.WriteLineAsync("");
             await sw.WriteLineAsync(BaseProtoFileContents);
         }
 
-        private static async Task ConvertCSVToSchemeProto()
+        private static async void ConvertCSVToSchemeProto()
         {
-            ShowProgress("Convert CSV to Protobuf Scheme");
+            CurrentMessage = "Convert CSV to Protobuf Scheme";
             foreach (var path in CSVFilePaths)
             {
                 if (!await ParseCSV(path)) continue;
@@ -91,12 +104,10 @@ namespace Causeless3t.Data.Editor
             }
         }
 
-        private static Task CompileProtobuf()
+        private static async void CompileProtobuf()
         {
-            ShowProgress("Compile Protobuf");
-            AssetDatabase.Refresh();
-            CompileAllInProject();
-            return Task.CompletedTask;
+            CurrentMessage = "Compile Protobuf";
+            await CompileAllInProject();
         }
         
         private static void ShowProgress(string message)
@@ -281,16 +292,16 @@ namespace Causeless3t.Data.Editor
         
         private static async Task WriteIndentTab(StreamWriter sw) => await sw.WriteAsync("  ");
         private static async Task WriteCloseBrace(StreamWriter sw) => await sw.WriteLineAsync("}");
-        private static async Task WriteEnumOpenBrace(StreamWriter sw, string name) => await sw.WriteLineAsync(string.Format("enum e{0} {{", name));
-        private static async Task WriteMessageOpenBrace(StreamWriter sw, string name) => await sw.WriteLineAsync(string.Format("message {0} {{", name));
+        private static async Task WriteEnumOpenBrace(StreamWriter sw, string name) => await sw.WriteLineAsync($"enum e{name} {{");
+        private static async Task WriteMessageOpenBrace(StreamWriter sw, string name) => await sw.WriteLineAsync($"message {name} {{");
         #endregion Scheme
         
         #region ProtoBuf
         private static readonly string ProtocPath = Path.Combine(Application.dataPath, "Protoc~/protoc");
         
-        private static void CompileAllInProject()
+        private static async Task CompileAllInProject()
         {
-            string[] protoFiles = Directory.GetFiles(Application.dataPath, "*.proto", SearchOption.AllDirectories);
+            string[] protoFiles = Directory.GetFiles(SchemeDirPath, "*.proto", SearchOption.AllDirectories);
             string[] includePaths = new string[protoFiles.Length];
             for (int i = 0; i < protoFiles.Length; i++)
             {
@@ -298,11 +309,10 @@ namespace Causeless3t.Data.Editor
                 includePaths[i] = protoFolder;
             }
             foreach (string s in protoFiles) 
-                CompileProtobufSystemPath(s, includePaths);
-            AssetDatabase.Refresh();
+                await CompileProtobufSystemPath(s, includePaths);
         }
 
-        private static void CompileProtobufSystemPath(string protoFileSystemPath, string[] includePaths)
+        private static async Task CompileProtobufSystemPath(string protoFileSystemPath, string[] includePaths)
         {
             if (Path.GetExtension(protoFileSystemPath) != ".proto") return;
             string outputPath = Path.GetDirectoryName(protoFileSystemPath);
@@ -310,10 +320,10 @@ namespace Causeless3t.Data.Editor
             string options = " --csharp_out \"{0}\" ";
             foreach (string s in includePaths)
             {
-                options += string.Format(" --proto_path \"{0}\" ", s);
+                options += $" --proto_path \"{s}\" ";
             }
 
-            string finalArguments = string.Format("\"{0}\"", protoFileSystemPath) + string.Format(options, outputPath);
+            string finalArguments = $"\"{protoFileSystemPath}\"" + string.Format(options, outputPath);
 
             ProcessStartInfo startInfo = new ProcessStartInfo() { FileName = ProtocPath, Arguments = finalArguments };
 
@@ -323,9 +333,9 @@ namespace Causeless3t.Data.Editor
             proc.StartInfo.RedirectStandardError = true;
             proc.Start();
 
-            string output = proc.StandardOutput.ReadToEnd();
-            string error = proc.StandardError.ReadToEnd();
-            proc.WaitForExit();
+            string output = await proc.StandardOutput.ReadToEndAsync();
+            string error = await proc.StandardError.ReadToEndAsync();
+            await proc.WaitForExitAsync();
 
             if (output != "")
             {
@@ -337,6 +347,27 @@ namespace Causeless3t.Data.Editor
             {
                 Debug.LogError("Protobuf Unity : " + error);
             }
+        }
+        
+        /// <summary>
+        /// Waits asynchronously for the process to exit.
+        /// </summary>
+        /// <param name="process">The process to wait for cancellation.</param>
+        /// <param name="cancellationToken">A cancellation token. If invoked, the task will return 
+        /// immediately as canceled.</param>
+        /// <returns>A Task representing waiting for the process to end.</returns>
+        private static Task WaitForExitAsync(this Process process, 
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (process.HasExited) return Task.CompletedTask;
+
+            var tcs = new TaskCompletionSource<object>();
+            process.EnableRaisingEvents = true;
+            process.Exited += (sender, args) => tcs.TrySetResult(null);
+            if(cancellationToken != default(CancellationToken))
+                cancellationToken.Register(() => tcs.SetCanceled());
+
+            return process.HasExited ? Task.CompletedTask : tcs.Task;
         }
         #endregion ProtoBuf
     }
