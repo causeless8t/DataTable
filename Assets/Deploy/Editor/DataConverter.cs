@@ -313,10 +313,10 @@ namespace Causeless3t.Data.Editor
 
         #region ProtoBuf
 #if UNITY_EDITOR_WIN
-        private static readonly string ProtocPackagePath = System.IO.Path.Combine(Application.dataPath, "../Packages/com.causeless3t.datatable/grpc-protoc_24.3/protoc32.exe");
+        private static readonly string ProtocPackagePath = System.IO.Path.Combine(Application.dataPath, "../Library/PackageCache/com.causeless3t.datatable/grpc-protoc_24.3/protoc32.exe");
         private static readonly string ProtocLocalPath = Path.Combine(Application.dataPath, "Deploy/grpc-protoc_24.3/protoc32.exe");
 #else
-        private static readonly string ProtocPackagePath = System.IO.Path.Combine(Application.dataPath, "../Packages/com.causeless3t.datatable/grpc-protoc_24.3/protoc");
+        private static readonly string ProtocPackagePath = System.IO.Path.Combine(Application.dataPath, "../Library/PackageCache/com.causeless3t.datatable/grpc-protoc_24.3/protoc");
         private static readonly string ProtocLocalPath = Path.Combine(Application.dataPath, "Deploy/grpc-protoc_24.3/protoc");
 #endif
 
