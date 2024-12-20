@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using UnityEditor;
 using UnityEditor.Compilation;
 using UnityEngine;
+using UnityEngine.Rendering;
 using Debug = UnityEngine.Debug;
 
 namespace Causeless3t.Data.Editor
@@ -24,12 +25,10 @@ namespace Causeless3t.Data.Editor
         private static readonly string DefaultProtoImportLine = "syntax = \"proto3\";\nimport \"Base.proto\";\npackage Causeless3t.{0};";
         private static string BaseProtoFilePath => Path.Combine(SchemeDirPath, "Base.proto");
         private static readonly string BaseProtoFileContents = "syntax = \"proto3\";\npackage Causeless3t;\n\n" +
-                                                               "message DateTime {\n  string time = 1;\n}\n" +
                                                                "message Vector2 {\n  float x = 1;\n  float y = 2;\n}\n" +
-                                                               "message Vector3 {\n  float x = 1;\n  float y = 2;\n  float z = 3;\n}\n" +
-                                                               "message Vector4 {\n  float x = 1;\n  float y = 2;\n  float z = 3;\n  float w = 4;\n}\n";
+                                                               "message Vector3 {\n  float x = 1;\n  float y = 2;\n  float z = 3;\n}\n";
         private static readonly string CommonProtoMessage = "message Table{0} {{\n  repeated {0} list = 1;\n  map<{1}, {0}> dict = 2;\n}}\n";
-        private static readonly string[] BaseValidTypes = { "int", "string", "float", "Vector2", "Vector3", "Vector4", "DateTime", "bool", "long" };
+        private static readonly string[] BaseValidTypes = { "int", "string", "float", "Vector2", "Vector3", "bool", "long" };
         private static readonly List<string> ValidTypes = new List<string>();
 
         public static void SetExportPath(string exportRootPath)
@@ -468,14 +467,36 @@ namespace Causeless3t.Data.Editor
             AssetDatabase.Refresh();
         }
 
+        // 지원하고자 하는 자료형에 대한 파싱 방법을 추가한다.
         private static object ConvertValue(string typeString, string value)
         {
             switch (typeString)
             {
-                case "int": return Convert.ToInt32(value);
-                case "long": return Convert.ToInt64(value);
-                case "bool": return Convert.ToBoolean(value);
-                case "float": return Convert.ToSingle(value);
+                case "int": return int.Parse(value);
+                case "long": return long.Parse(value);
+                case "bool": return bool.Parse(value);
+                case "float": return float.Parse(value);
+                case "Vector2":
+                {
+                    Type type = Type.GetType($"Causeless3T.{typeString}, Assembly-CSharp");
+                    var vector = Activator.CreateInstance(type);
+                    var split = value.Split(',');
+                    float[] values = new float[2] { float.Parse(split[0]), float.Parse(split[1]) };
+                    SetProperty(vector, "x", values[0]);
+                    SetProperty(vector, "y", values[1]);
+                    return vector;
+                }
+                case "Vector3":
+                {
+                    Type type = Type.GetType($"Causeless3T.{typeString}, Assembly-CSharp");
+                    var vector = Activator.CreateInstance(type);
+                    var split = value.Split(',');
+                    float[] values = new float[3] { float.Parse(split[0]), float.Parse(split[1]), float.Parse(split[2]) };
+                    SetProperty(vector, "x", values[0]);
+                    SetProperty(vector, "y", values[1]);
+                    SetProperty(vector, "y", values[2]);
+                    return vector;
+                }
                 default: return value;
             }
         }
