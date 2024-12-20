@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
@@ -7,8 +8,20 @@ namespace Causeless3t.Data.Editor
 {
     public static class SerializeContext
     {
+        [MenuItem("Assets/Set TableData Root Folder")]
+        private static void SetRootFolder()
+        {
+            string selectedPath = EditorUtility.OpenFolderPanel("Select Root Folder", "", "");
+            if (!string.IsNullOrEmpty(selectedPath))
+            {
+                DataConverter.SetExportPath(selectedPath);
+                File.WriteAllText(Path.Combine(Application.dataPath, "TablePathData.dat"), selectedPath);
+                AssetDatabase.Refresh();
+            }
+        }
+
         [MenuItem("Assets/Convert TableData")]
-        static void ConvertToProtobuf()
+        private static void ConvertToProtobuf()
         {
             var filePaths = GetAllDataFilePaths();
             
@@ -37,7 +50,8 @@ namespace Causeless3t.Data.Editor
             var valid = Selection.objects.All(obj =>
             {
                 var path = AssetDatabase.GetAssetPath(obj.GetInstanceID());
-                return path.EndsWith("csv");
+                var filename = Path.GetFileName(path);
+                return !filename.StartsWith("#") && !filename.StartsWith("~") && filename.EndsWith("xls") || filename.EndsWith("xlsx");
             });
             return valid;
         }
@@ -47,7 +61,11 @@ namespace Causeless3t.Data.Editor
             List<string> filePaths = new List<string>();
             var files = Selection.objects.
                 Select(AssetDatabase.GetAssetPath)
-                .Where(path => path.EndsWith("csv"))
+                .Where(path =>
+                {
+                    var filename = Path.GetFileName(path);
+                    return !filename.StartsWith("#") && !filename.StartsWith("~") && filename.EndsWith("xls") || filename.EndsWith("xlsx");
+                })
                 .ToArray();
             filePaths.AddRange(files);
             
