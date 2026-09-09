@@ -8,10 +8,14 @@ namespace Causeless3t.Table
 {
     public static class DynamicClassGenerator
     {
-        public static void Generate(string className, List<(string propName, string typeName)> schema,
+        public static bool Generate(string className, List<(string propName, string typeName)> schema,
             List<bool> validColumns)
         {
-            var path = Path.Combine(DataTableSettingsProvider.Settings.GeneratedCodePath, $"{className}.cs");
+            var outputDirectory = DataTableSettingsProvider.Settings.GeneratedCodePath;
+
+            Directory.CreateDirectory(outputDirectory);
+
+            var path = Path.Combine(outputDirectory, $"{className}.cs");
             var code = new StringBuilder();
 
             code.AppendLine("using System;");
@@ -30,7 +34,7 @@ namespace Causeless3t.Table
                     continue;
 
                 var (propName, typeName) = schema[i];
-                var typeStr = TypeParser.GetFieldTypeString(typeName.ToLower());
+                var typeStr = TypeParser.GetFieldTypeString(typeName.ToLowerInvariant());
                 code.AppendLine($"        [SerializeField] private {typeStr} _{propName};");
                 code.AppendLine($"        public {typeStr} @{propName} => _{propName};");
             }
@@ -44,7 +48,7 @@ namespace Causeless3t.Table
                     continue;
 
                 var (propName, typeName) = schema[i];
-                var lowerTypeName = typeName.ToLower();
+                var lowerTypeName = typeName.ToLowerInvariant();
 
                 if (lowerTypeName == "int" || lowerTypeName == "float" || lowerTypeName == "string" ||
                     lowerTypeName == "long" || lowerTypeName == "double" || lowerTypeName == "bignum" ||
@@ -88,7 +92,7 @@ namespace Causeless3t.Table
                     continue;
 
                 var (propName, typeName) = schema[i];
-                var lowerTypeName = typeName.ToLower();
+                var lowerTypeName = typeName.ToLowerInvariant();
 
                 if (lowerTypeName == "int")
                     code.AppendLine($"            _{propName} = br.ReadInt32();");
@@ -138,8 +142,17 @@ namespace Causeless3t.Table
 
             code.AppendLine("    }");
             code.AppendLine("}");
+            
+            var codeStr = code.ToString();
+            if (File.Exists(path))
+            {
+                var previousCode = File.ReadAllText(path);
+                if (previousCode == codeStr)
+                    return false;
+            }
 
             File.WriteAllText(path, code.ToString());
+            return true;
         }
     }
 }

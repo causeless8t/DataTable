@@ -6,7 +6,7 @@ namespace Causeless3t.Table
 {
     public static class DeserializeUtil
     {
-        public static DynamicDataObject<T> DeserializeObject<T>(byte[] data) where T : class
+        public static DynamicDataObject<T> DeserializeObject<T>(byte[] data) where T : class, new()
         {
             using var ms = new MemoryStream(data);
             using var br = new BinaryReader(ms);
@@ -17,13 +17,18 @@ namespace Causeless3t.Table
 
             var recordType = typeof(T);
             var readMethod = recordType.GetMethod("Read", new[] { typeof(BinaryReader) });
+            
+            if (readMethod == null)
+            {
+                throw new MissingMethodException(recordType.FullName, "Read(BinaryReader)");
+            }
 
             var fields = recordType.GetFields(BindingFlags.NonPublic | BindingFlags.Instance);
 
             for (int i = 0; i < count; i++)
             {
-                var record = Activator.CreateInstance<T>();
-                readMethod?.Invoke(record, new object[] { br });
+                var record = new T();
+                readMethod.Invoke(record, new object[] { br });
 
                 dataObject.List.Add(record);
 
@@ -39,6 +44,24 @@ namespace Causeless3t.Table
             }
 
             return dataObject;
+        }
+        
+        public static object DeserializeByType(byte[] data, Type recordType)
+        {
+            var method = typeof(DeserializeUtil).GetMethod(
+                nameof(DeserializeObject),
+                BindingFlags.Public | BindingFlags.Static);
+
+            if (method == null)
+                throw new MissingMethodException(
+                    typeof(DeserializeUtil).FullName,
+                    nameof(DeserializeObject));
+
+            var genericMethod = method.MakeGenericMethod(recordType);
+
+            return genericMethod.Invoke(
+                null,
+                new object[] { data });
         }
     }
 }
