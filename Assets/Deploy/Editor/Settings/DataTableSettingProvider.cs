@@ -6,7 +6,7 @@ namespace Causeless3t.Table
 {
     internal static class DataTableSettingsProvider
     {
-        private const string SettingsDirectory = "Assets/DataTable";
+        private const string SettingsDirectory = "Assets/Resources/DataTable";
 
         private const string SettingsPath = SettingsDirectory + "/DataTableSettings.asset";
 
