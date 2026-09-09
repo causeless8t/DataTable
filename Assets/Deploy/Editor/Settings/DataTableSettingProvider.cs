@@ -1,4 +1,5 @@
 #if UNITY_EDITOR
+using System.IO;
 using UnityEditor;
 using UnityEngine;
 
@@ -6,7 +7,7 @@ namespace Causeless3t.Table
 {
     internal static class DataTableSettingsProvider
     {
-        private const string SettingsDirectory = "Assets/Resources/DataTable";
+        private const string SettingsDirectory = "Assets/Resources";
 
         private const string SettingsPath = SettingsDirectory + "/DataTableSettings.asset";
 
@@ -71,12 +72,12 @@ namespace Causeless3t.Table
             if (AssetDatabase.IsValidFolder(SettingsDirectory))
                 return;
 
-            const string parent = "Assets";
-            const string folderName = "DataTable";
+            const string root = "Assets";
+            const string parent = "Resources";
 
             AssetDatabase.CreateFolder(
-                parent,
-                folderName);
+                root,
+                parent);
         }
     }
 }
