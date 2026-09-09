@@ -8,19 +8,17 @@ namespace Causeless3t.Table
 {
     public static class DynamicClassGenerator
     {
-        private static readonly string SourcePath = Path.Combine(Application.dataPath, "Scripts", "Tables");
-
         public static void Generate(string className, List<(string propName, string typeName)> schema,
             List<bool> validColumns)
         {
-            var path = Path.Combine(SourcePath, $"{className}.cs");
+            var path = Path.Combine(DataTableSettingsProvider.Settings.GeneratedCodePath, $"{className}.cs");
             var code = new StringBuilder();
 
             code.AppendLine("using System;");
             code.AppendLine("using System.Collections.Generic;");
             code.AppendLine("using System.IO;");
             code.AppendLine("using UnityEngine;");
-            code.AppendLine($"namespace {TableManager.TableNamespace}");
+            code.AppendLine($"namespace {DataTableSettingsProvider.Settings.Namespace}");
             code.AppendLine("{");
             code.AppendLine("    [Serializable][TableData]");
             code.AppendLine($"    public class {className}");
@@ -72,16 +70,6 @@ namespace Causeless3t.Table
                 {
                     code.AppendLine($"            bw.Write(_{propName}.Count);");
                     code.AppendLine($"            foreach (var item in _{propName}) bw.Write(item);");
-                }
-                else if (lowerTypeName == "curpair")
-                {
-                    code.AppendLine($"            bw.Write(_{propName}.ID); bw.Write(_{propName}.Amount);");
-                }
-                else if (lowerTypeName == "list<curpair>")
-                {
-                    code.AppendLine($"            bw.Write(_{propName}.Count);");
-                    code.AppendLine(
-                        $"            foreach (var item in _{propName}) {{ bw.Write(item.ID); bw.Write(item.Amount); }}");
                 }
                 else
                 {
@@ -139,18 +127,6 @@ namespace Causeless3t.Table
                     code.AppendLine($"            _{propName} = new List<string>(count_{propName});");
                     code.AppendLine(
                         $"            for (int i = 0; i < count_{propName}; i++) _{propName}.Add(br.ReadString());");
-                }
-                else if (lowerTypeName == "curpair")
-                {
-                    code.AppendLine(
-                        $"            _{propName} = new CurPair {{ ID = br.ReadString(), Amount = br.ReadDouble() }};");
-                }
-                else if (lowerTypeName == "list<curpair>")
-                {
-                    code.AppendLine($"            int count_{propName} = br.ReadInt32();");
-                    code.AppendLine($"            _{propName} = new List<CurPair>(count_{propName});");
-                    code.AppendLine(
-                        $"            for (int i = 0; i < count_{propName}; i++) _{propName}.Add(new CurPair {{ ID = br.ReadString(), Amount = br.ReadDouble() }});");
                 }
                 else
                 {

@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
-using UnityEngine;
 
 namespace Causeless3t.Table
 {
@@ -16,7 +15,7 @@ namespace Causeless3t.Table
             var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
             var moduleBuilder = assemblyBuilder.DefineDynamicModule("MainModule");
 
-            var typeBuilder = moduleBuilder.DefineType($"{TableManager.TableNamespace}.{className}",
+            var typeBuilder = moduleBuilder.DefineType($"{DataTableSettingsProvider.Settings.Namespace}.{className}",
                 TypeAttributes.Public | TypeAttributes.Class | TypeAttributes.Serializable);
 
             for (int i = 0; i < schema.Count; i++)

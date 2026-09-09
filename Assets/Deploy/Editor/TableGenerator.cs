@@ -13,8 +13,6 @@ namespace Causeless3t.Table
 {
     public class TableGenerator : Editor
     {
-        private static readonly string CSVPath = Path.Combine(Application.dataPath, "CSV");
-
         [MenuItem("Assets/TSV > CSV 구분자 변환", true)] // true 인자는 활성화 여부를 제어
         private static bool ValidateConvertTSVFiles()
         {
@@ -38,7 +36,7 @@ namespace Causeless3t.Table
             foreach (var asset in selectedAssets)
             {
                 string assetPath = AssetDatabase.GetAssetPath(asset);
-                string targetPath = Path.Combine(CSVPath, $"{Path.GetFileNameWithoutExtension(assetPath)}.csv");
+                string targetPath = Path.Combine(DataTableSettingsProvider.Settings.CsvSourcePath, $"{Path.GetFileNameWithoutExtension(assetPath)}.csv");
                 EditorUtility.DisplayProgressBar("파일 변환 중", $"{targetPath} ({completed}/{selectedAssets.Length})",
                     (float)completed / selectedAssets.Length);
                 string tsv = File.ReadAllText(assetPath);
@@ -80,13 +78,13 @@ namespace Causeless3t.Table
             {
                 if (asset is TextAsset textAsset)
                 {
-                    var targetPath = Path.Combine(TableManager.TargetPath, $"{textAsset.name}_encry.bytes");
+                    var targetPath = Path.Combine(DataTableSettingsProvider.Settings.EncryptedDataPath, $"{textAsset.name}_encry.bytes");
                     EditorUtility.DisplayProgressBar("파일 변환 중", $"{targetPath} ({completed}/{selectedAssets.Length})",
                         (float)completed / selectedAssets.Length);
                     try
                     {
                         CsvToBinaryConverter.Convert(textAsset.name, textAsset.text, targetPath,
-                            TableManager.AESKey);
+                            DataTableSettingsProvider.Settings.AESKey);
                     }
                     catch (Exception e)
                     {
@@ -119,6 +117,7 @@ namespace Causeless3t.Table
             return allDat;
         }
 
+        private static readonly ResourcesDataLoader _dataLoader = new();
         [MenuItem("Assets/테이블 복원")]
         private static async void ConvertDataFiles()
         {
@@ -175,29 +174,23 @@ namespace Causeless3t.Table
             string targetName,
             Type type)
         {
-            var method = typeof(TableManager).GetMethod("LoadData", BindingFlags.NonPublic | BindingFlags.Static);
-
-            if (method == null) 
-                throw new MissingMethodException(typeof(TableManager).FullName, "LoadData");
-
-            var genericMethod = method.MakeGenericMethod(type);
-
-            var taskObject = genericMethod.Invoke(null, new object[] { targetName });
-            if (taskObject is not Task task)
+            try
             {
-                throw new InvalidOperationException("LoadData must return Task.");
+                // 바이너리 파일 읽기
+                byte[] encryptedData = await _dataLoader.LoadAsync($"Table/{targetName}_encry");
+                if (encryptedData == null) return null;
+                Debug.Log($"Local Table {targetName} Loading");
+                byte[] decryptedData = AesEncryption.Decrypt(encryptedData, DataTableSettingsProvider.Settings.AESKey);
+
+                // 직렬화된 데이터를 역직렬화
+                var dataObject = DeserializeUtil.DeserializeObject<ResourcesDataLoader>(decryptedData);
+                return dataObject;
             }
-
-            await task;
-
-            var resultProperty = task.GetType().GetProperty("Result");
-
-            if (resultProperty == null)
+            catch (Exception e)
             {
-                throw new InvalidOperationException("LoadData task does not contain a result.");
+                Debug.LogException(e);
+                return null;
             }
-
-            return resultProperty.GetValue(task);
         }
         
         private static string RemoveSuffix(string value, string suffix)
@@ -242,7 +235,7 @@ namespace Causeless3t.Table
                 sb.Append("\n");
             }
 
-            var targetPath = Path.Combine(CSVPath, $"{targetName}_.csv");
+            var targetPath = Path.Combine(DataTableSettingsProvider.Settings.CsvSourcePath, $"{targetName}_.csv");
             File.WriteAllText(targetPath, sb.ToString());
         }
 

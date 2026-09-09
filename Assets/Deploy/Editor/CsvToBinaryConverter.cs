@@ -158,7 +158,7 @@ namespace Causeless3t.Table
         {
             foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
-                var type = assembly.GetType($"{TableManager.TableNamespace}.{className}");
+                var type = assembly.GetType($"{DataTableSettingsProvider.Settings.Namespace}.{className}");
                 if (type != null)
                     return type;
             }
