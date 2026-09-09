@@ -1,0 +1,18 @@
+{
+    "name": "Causeless3t.DataTable.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:bc80214bd150e4306b399327026f8b2e"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
