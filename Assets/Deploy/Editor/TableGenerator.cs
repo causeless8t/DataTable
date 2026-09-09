@@ -120,53 +120,94 @@ namespace Causeless3t.Table
         }
 
         [MenuItem("Assets/테이블 복원")]
-        private static void ConvertDataFiles()
+        private static async void ConvertDataFiles()
         {
             // 선택한 CSV 파일들에 대해 작업 실행
-            var selectedAssets = Selection.GetFiltered<Object>(SelectionMode.Assets);
+            var selectedAssets = Selection.GetFiltered<TextAsset>(SelectionMode.Assets);
+            
+            if (selectedAssets.Length == 0)
+                return;
+            
             int completed = 0;
-            EditorUtility.ClearProgressBar();
-            foreach (var asset in selectedAssets)
+
+            try
             {
-                if (asset is TextAsset textAsset)
+                foreach (var textAsset in selectedAssets)
                 {
-                    var targetName = textAsset.name.Replace("_encry", "");
-                    var targetPath = Path.Combine(TableManager.TargetPath, $"{targetName}.csv");
-                    EditorUtility.DisplayProgressBar("파일 변환 중", $"{targetPath} ({completed}/{selectedAssets.Length})",
-                        (float)completed / selectedAssets.Length);
+                    var targetName = RemoveSuffix(textAsset.name, "_encry");
+                    EditorUtility.DisplayProgressBar(
+                        "테이블 변환",
+                        $"{targetName} ({completed + 1}/{selectedAssets.Length})",
+                        (float)completed /
+                        selectedAssets.Length);
+
                     try
                     {
                         var type = CsvToBinaryConverter.FindTypeByName(targetName);
                         if (type == null)
                             throw new NotSupportedException($"존재하지 않는 자료형입니다. ({targetName})");
-                        var method = typeof(TableManager)
-                            .GetMethod("LoadData", BindingFlags.NonPublic | BindingFlags.Static);
-                        var genericMethod = method.MakeGenericMethod(type);
-                        var unitaskObj = genericMethod.Invoke(null, new object[] { targetName });
-                        var getAwaiter = unitaskObj.GetType().GetMethod("GetAwaiter");
-                        var awaiter = getAwaiter.Invoke(unitaskObj, null);
-                        var isCompletedProp = awaiter.GetType().GetProperty("IsCompleted");
-                        // while (!(bool)isCompletedProp.GetValue(awaiter))
-                        //     await UniTask.Yield(); // Unity-safe yield
-                        var getResult = awaiter.GetType().GetMethod("GetResult");
-                        var result = getResult.Invoke(awaiter, null); // result: object (DynamicDataObject<T>)
-                        WriteCSVFileByDataObject(targetName, type, result);
+
+                        var data = await LoadDataByTypeAsync(targetName, type);
+                        WriteCSVFileByDataObject(targetName, type, data);
+
+                        completed++;
                     }
                     catch (Exception e)
                     {
                         Debug.LogException(e);
                     }
 
-                    completed++;
-                    EditorUtility.DisplayProgressBar("파일 변환 중", $"{targetPath} ({completed}/{selectedAssets.Length})",
-                        (float)completed / selectedAssets.Length);
+                    AssetDatabase.Refresh();
+
+                    EditorUtility.DisplayDialog(
+                        "변환 완료",
+                        $"{completed}/{selectedAssets.Length}개의 테이블을 CSV로 변환했습니다.",
+                        "확인");
                 }
             }
+            finally
+            {
+                EditorUtility.ClearProgressBar();
+            }
+        }
+        
+        private static async Task<object> LoadDataByTypeAsync(
+            string targetName,
+            Type type)
+        {
+            var method = typeof(TableManager).GetMethod("LoadData", BindingFlags.NonPublic | BindingFlags.Static);
 
-            AssetDatabase.Refresh();
-            EditorUtility.ClearProgressBar();
-            // 작업이 완료되었음을 알리는 다이얼로그 띄우기
-            EditorUtility.DisplayDialog("작업 완료", "DAT 파일 처리가 완료되었습니다.", "확인");
+            if (method == null) 
+                throw new MissingMethodException(typeof(TableManager).FullName, "LoadData");
+
+            var genericMethod = method.MakeGenericMethod(type);
+
+            var taskObject = genericMethod.Invoke(null, new object[] { targetName });
+            if (taskObject is not Task task)
+            {
+                throw new InvalidOperationException("LoadData must return Task.");
+            }
+
+            await task;
+
+            var resultProperty = task.GetType().GetProperty("Result");
+
+            if (resultProperty == null)
+            {
+                throw new InvalidOperationException("LoadData task does not contain a result.");
+            }
+
+            return resultProperty.GetValue(task);
+        }
+        
+        private static string RemoveSuffix(string value, string suffix)
+        {
+            if (!value.EndsWith(suffix, StringComparison.Ordinal))
+                return value;
+
+            return value.Substring(
+                0,
+                value.Length - suffix.Length);
         }
 
         private static void WriteCSVFileByDataObject(string targetName, Type dataType, object data)
