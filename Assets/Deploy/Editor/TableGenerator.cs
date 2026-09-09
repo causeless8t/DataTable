@@ -1,5 +1,7 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -81,6 +83,8 @@ namespace Causeless3t.Table
 
             foreach (var textAsset in selectedAssets)
             {
+                Directory.CreateDirectory(DataTableSettingsProvider.Settings.EncryptedDataPath);
+                
                 var targetPath = Path.Combine(
                     DataTableSettingsProvider.Settings.EncryptedDataPath,
                     $"{textAsset.name}_encry.bytes");
@@ -196,7 +200,7 @@ namespace Causeless3t.Table
         private static async Task<object> LoadDataByTypeAsync(string targetName, Type type)
         {
             // 바이너리 파일 읽기
-            byte[] encryptedData = await _dataLoader.LoadAsync($"Table/{targetName}_encry");
+            byte[] encryptedData = await _dataLoader.LoadAsync($"{targetName}_encry");
             if (encryptedData == null)
                 throw new FileNotFoundException($"암호화된 테이블 파일을 찾을 수 없습니다. ({targetName})");
             Debug.Log($"Local Table {targetName} Loading");
@@ -220,54 +224,123 @@ namespace Causeless3t.Table
         {
             StringBuilder sb = new();
             // schema
-            var fields = dataType.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
-            foreach (var field in fields)
+            var properties = dataType.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+            if (properties.Length == 0)
+                throw new InvalidOperationException($"CSV로 복원할 public property가 없습니다. ({dataType.Name})");
+
+            // schema
+            foreach (var property in properties)
             {
-                sb.Append(field.Name);
+                sb.Append(property.Name);
                 sb.Append(':');
-                sb.Append(ShortExpressionTypeName(field.FieldType.Name));
+                sb.Append(ShortExpressionTypeName(property.PropertyType));
                 sb.Append(CsvToBinaryConverter.CSV_SEPARATOR);
             }
 
-            sb.Remove(sb.Length - 1, 1);
-            sb.Append("\n");
+            sb.Length--;
+            sb.AppendLine();
 
             // records
-            var dataDictType = typeof(DynamicDataObject<>).MakeGenericType(dataType);
-            var listField = dataDictType.GetField("List");
-            var dataListObj = listField.GetValue(data);
-            foreach (var item in (IEnumerable)dataListObj)
+            var dataObjectType = typeof(DynamicDataObject<>).MakeGenericType(dataType);
+
+            var listField = dataObjectType.GetField(
+                "List",
+                BindingFlags.Public | BindingFlags.Instance);
+
+            if (listField == null)
+                throw new MissingFieldException(dataObjectType.FullName, "List");
+
+            if (listField.GetValue(data) is not IEnumerable dataList)
+                throw new InvalidOperationException($"테이블 데이터의 List를 읽을 수 없습니다. ({targetName})");
+
+            foreach (var item in dataList)
             {
-                foreach (var field in fields)
+                foreach (var property in properties)
                 {
-                    sb.Append(field.GetValue(item));
+                    var value = property.GetValue(item);
+
+                    sb.Append(ConvertValueToCsv(value));
                     sb.Append(CsvToBinaryConverter.CSV_SEPARATOR);
                 }
 
-                sb.Remove(sb.Length - 1, 1);
-                sb.Append("\n");
+                sb.Length--;
+                sb.AppendLine();
             }
 
-            var targetPath = Path.Combine(DataTableSettingsProvider.Settings.CsvSourcePath, $"{targetName}_.csv");
+            var outputDirectory = DataTableSettingsProvider.Settings.CsvSourcePath;
+
+            Directory.CreateDirectory(outputDirectory);
+
+            var targetPath = Path.Combine(outputDirectory, $"{targetName}_.csv");
             File.WriteAllText(targetPath, sb.ToString());
         }
 
-        private static string ShortExpressionTypeName(string type) => type switch
+        private static string ShortExpressionTypeName(Type type)
         {
-            "String" => "string",
-            "Int32" => "int",
-            "Int64" => "long",
-            "Single" => "float",
-            "DateTime" => "datetime",
-            "List<System.Int32>" => "list<int>",
-            "List<System.Single>" => "list<float>",
-            "List<String>" => "list<string>",
-            "Double" => "double",
-            "BigNum" => "double",
-            "BigNumber" => "double",
-            "(String, Double)" => "curpair",
-            "List<(String, Double)>" => "list<curpair>",
-            _ => type,
-        };
+            if (type == typeof(string))
+                return "string";
+
+            if (type == typeof(int))
+                return "int";
+
+            if (type == typeof(long))
+                return "long";
+
+            if (type == typeof(float))
+                return "float";
+
+            if (type == typeof(double))
+                return "double";
+
+            if (type == typeof(DateTime))
+                return "datetime";
+
+            if (type == typeof(Vector2))
+                return "vector2";
+
+            if (type == typeof(Vector3))
+                return "vector3";
+
+            if (type == typeof(List<int>))
+                return "list<int>";
+
+            if (type == typeof(List<float>))
+                return "list<float>";
+
+            if (type == typeof(List<string>))
+                return "list<string>";
+
+            throw new NotSupportedException($"지원하지 않는 CSV 타입입니다. ({type.FullName})");
+        }
+        
+        private static string ConvertValueToCsv(object value)
+        {
+            if (value == null)
+                return string.Empty;
+
+            switch (value)
+            {
+                case List<int> list:
+                    return string.Join(",", list);
+
+                case List<float> list:
+                    return string.Join(",", list);
+
+                case List<string> list:
+                    return string.Join(",", list);
+
+                case Vector2 vector2:
+                    return $"({vector2.x},{vector2.y})";
+
+                case Vector3 vector3:
+                    return $"({vector3.x},{vector3.y},{vector3.z})";
+
+                case DateTime dateTime:
+                    return dateTime.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
+
+                default:
+                    return value.ToString();
+            }
+        }
     }
 }

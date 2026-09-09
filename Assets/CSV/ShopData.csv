@@ -1,48 +1,48 @@
-#상품명|key:string|slotindex:int|groupindex:int|orderindex:int|conditionType:int|conditionValue:int|minLevel:int|cashValue:int|paymentData:string|startDate:datetime|rewardValue:list<curpair>|ItemNameSrt:string|imagePath:string|isFree:int|isAvail:int|isShow:int
-보석 패키지 1|dia_pack_1|1000|1|0|0|0|0|500|consume_500|2026-03-09|cur_diamond-700, cur_gold-100000|iap_package_diamond_700||0|0|1
-보석 패키지 2|dia_pack_2|1001|1|1|0|0|0|1000|consume_1000|2026-03-09|cur_diamond-1600, cur_gold-150000|iap_package_diamond_1600||0|0|1
-보석 패키지 3|dia_pack_3|1002|1|2|0|0|0|2000|consume_2000|2026-03-09|cur_diamond-3300, cur_gold-300000|iap_package_diamond_3300||0|0|1
-보석 패키지 4|dia_pack_4|1003|1|3|0|0|0|5000|consume_5000|2026-03-09|cur_diamond-8000, cur_gold-900000|iap_package_diamond_8000||0|0|1
-보석 200개 묶음|dia_200|1100|1|0|3|0|0|200|consume_200|2026-03-09|cur_diamond-200|iap_diamond_200|Assets\_UI\Sprite\currency\cur_diamond.psd|0|1|1
-보석 500개 묶음|dia_500|1101|1|1|3|0|0|500|consume_500|2026-03-09|cur_diamond-500|iap_diamond_500|Assets\_UI\Sprite_noPack\shop\diamond_00|0|1|1
-보석 1000개 묶음|dia_1000|1102|1|2|3|0|0|1000|consume_1000|2026-03-09|cur_diamond-1000|iap_diamond_1000|Assets\_UI\Sprite_noPack\shop\diamond_01|0|1|1
-보석 2000개 묶음|dia_2000|1103|1|3|3|0|0|2000|consume_2000|2026-03-09|cur_diamond-2000|iap_diamond_2000|Assets\_UI\Sprite_noPack\shop\diamond_02|0|1|1
-보석 5000개 묶음|dia_5000|1104|1|4|3|0|0|5000|consume_5000|2026-03-09|cur_diamond-5000|iap_diamond_5000|Assets\_UI\Sprite_noPack\shop\diamond_03|0|1|1
-보석 10000개 묶음|dia_10000|1105|1|5|3|0|0|10000|consume_10000|2026-03-09|cur_diamond-10000|iap_diamond_10000|Assets\_UI\Sprite_noPack\shop\diamond_04|0|1|1
-포션 1개|potion_1|2000|2|0|3|0|0|10|consume_10|2026-03-09|cur_potion-1|iap_potion_1|Assets\_UI\Sprite\currency\cur_potion.psd|0|1|1
-포션 10개|potion_10|2001|2|1|3|0|0|100|consume_100|2026-03-09|cur_potion-10|iap_potion_10|Assets\_UI\Sprite_noPack\shop\potion_10|0|1|1
-포션 100개|potion_100|2002|2|2|3|0|0|1000|consume_1000|2026-03-09|cur_potion-100|iap_potion_100|Assets\_UI\Sprite_noPack\shop\potion_27|0|1|1
-포션 200개|potion_200|2003|2|3|3|0|0|2000|consume_2000|2026-03-09|cur_potion-200|iap_potion_200|Assets\_UI\Sprite_noPack\shop\potion_60|0|1|1
-포션 500개|potion_500|2004|2|4|3|0|0|5000|consume_5000|2026-03-09|cur_potion-500|iap_potion_500|Assets\_UI\Sprite_noPack\shop\potion_135|0|1|1
-포션 1000개|potion_1000|2005|2|5|3|0|0|10000|consume_10000|2026-03-09|cur_potion-1000|iap_potion_1000|Assets\_UI\Sprite_noPack\shop\potion_300|0|1|1
-특성 패키지 1|mastery_pack_1|3000|3|0|0|0|0|500|consume_500|2026-03-09|cur_mastery-600, cur_gold-100000|iap_package_mastery_600||0|0|1
-특성 패키지 2|mastery_pack_2|3001|3|1|0|0|0|2000|consume_2000|2026-03-09|cur_mastery-2600, cur_gold-150000|iap_package_mastery_2600||0|0|1
-특성 패키지 3|mastery_pack_3|3002|3|2|0|0|0|5000|consume_5000|2026-03-09|cur_mastery-7500, cur_gold-300000|iap_package_mastery_7500||0|0|1
-특성 패키지 4|mastery_pack_4|3003|3|3|0|0|0|10000|consume_10000|2026-03-09|cur_mastery-18000, cur_gold-900000|iap_package_mastery_18000||0|0|1
-진주 패키지 1|gem_pack_1|4000|4|0|0|0|0|500|consume_500|2026-03-09|cur_gem-4000, cur_gold-100000|iap_package_gem_4000||0|0|1
-진주 패키지 2|gem_pack_2|4001|4|1|0|0|0|2000|consume_2000|2026-03-09|cur_gem-17500, cur_gold-150000|iap_package_gem_17500||0|0|1
-진주 패키지 3|gem_pack_3|4002|4|2|0|0|0|5000|consume_5000|2026-03-09|cur_gem-49000, cur_gold-300000|iap_package_gem_49000||0|0|1
-진주 패키지 4|gem_pack_4|4003|4|3|0|0|0|10000|consume_10000|2026-03-09|cur_gem-120000, cur_gold-900000|iap_package_gem_120000||0|0|1
-일일 추가 보상권 7개|vip_1|100|0|0|3|0|0|500|consume_500|2026-03-09|cur_vip-7|iap_vip_7||0|1|1
-성장 패스1|growth_pass_1|10000|100|0|4|0|0|1000|consume_1000|2026-03-09|cur_diamond-200, cur_gem-1000|iap_growth_pass_1||0|0|1
-성장 패스2|growth_pass_2|10001|100|1|4|11|0|2000|consume_2000|2026-03-09|cur_diamond-200, cur_gem-1000|iap_growth_pass_2||0|0|1
-성장 패스3|growth_pass_3|10002|100|2|4|21|0|3000|consume_3000|2026-03-09|cur_diamond-200, cur_gem-1000|iap_growth_pass_3||0|0|1
-성장 패스4|growth_pass_4|10003|100|3|4|31|0|5000|consume_5000|2026-03-09|cur_diamond-200, cur_gem-1000|iap_growth_pass_4||0|0|1
-성장 패스5|growth_pass_5|10004|100|4|4|41|0|6000|consume_6000|2026-03-09|cur_diamond-200, cur_gem-1000|iap_growth_pass_5||0|0|1
-성장 패스6|growth_pass_6|10005|100|5|4|51|0|7000|consume_7000|2026-03-09|cur_diamond-200, cur_gem-1000|iap_growth_pass_6||0|0|1
-표류자 지원 패키지 1|newbie_pack_1|5000|5|0|0|0|0|100|consume_100|2026-03-09|cur_gem-1000, cur_mastery-100, cur_gold-10000, cur_potion-5|iap_newbie_pack_1||0|0|1
-표류자 지원 패키지 2|newbie_pack_2|5001|5|1|0|0|0|500|consume_500|2026-03-09|cur_gem-6000, cur_mastery-350, cur_gold-60000, cur_potion-25|iap_newbie_pack_2||0|0|1
-표류자 지원 패키지 3|newbie_pack_3|5002|5|2|0|0|0|1000|consume_1000|2026-03-09|cur_gem-13000, cur_mastery-800, cur_gold-130000, cur_potion-55|iap_newbie_pack_3||0|0|1
-표류자 지원 패키지 4|newbie_pack_4|5003|5|3|0|0|0|3000|consume_3000|2026-03-09|cur_gem-40000, cur_mastery-2500, cur_gold-400000, cur_potion-180|iap_newbie_pack_4||0|0|1
-산호초 고래|whale_001|6000|6|0|3|0|0|700|consume_700|2026-03-09|skin_whale_001-1|iap_whale_001|Assets\Resources\Icon\skin\whale|0|0|1
-범고래|whale_002|6001|6|1|3|0|0|700|consume_700|2026-03-09|skin_whale_002-1|iap_whale_002|Assets\Resources\Icon\skin\whale|0|0|1
-세일러복 고래|whale_003|6002|6|2|3|0|0|700|consume_700|2026-03-09|skin_whale_003-1|iap_whale_003|Assets\Resources\Icon\skin\whale|0|0|1
-집사복 고래|whale_004|6003|6|3|3|0|0|700|consume_700|2026-03-09|skin_whale_004-1|iap_whale_004|Assets\Resources\Icon\skin\whale|0|0|1
-은하수 고래|whale_005|6004|6|4|3|0|0|700|consume_700|2026-03-09|skin_whale_005-1|iap_whale_005|Assets\Resources\Icon\skin\whale|0|0|1
-솜사탕 고래|whale_006|6005|6|5|3|0|0|700|consume_700|2026-03-09|skin_whale_006-1|iap_whale_006|Assets\Resources\Icon\skin\whale|0|0|1
-스노클링 고래|whale_007|6006|6|6|3|0|0|700|consume_700|2026-03-09|skin_whale_007-1|iap_whale_007|Assets\Resources\Icon\skin\whale|0|0|1
-향유 고래|whale_008|6007|6|7|3|0|0|700|consume_700|2026-03-09|skin_whale_008-1|iap_whale_008|Assets\Resources\Icon\skin\whale|0|0|1
-체리 블로섬 고래|whale_009|6008|6|8|3|0|0|700|consume_700|2026-03-09|skin_whale_009-1|iap_whale_009|Assets\Resources\Icon\skin\whale|0|0|1
-돌고래|whale_010|6009|6|9|3|0|0|700|consume_700|2026-03-09|skin_whale_010-1|iap_whale_010|Assets\Resources\Icon\skin\whale|0|0|1
-서부의 고래|whale_011|6010|6|10|3|0|0|700|consume_700|2026-03-09|skin_whale_011-1|iap_whale_011|Assets\Resources\Icon\skin\whale|0|0|1
-고래 상어|whale_012|6011|6|11|3|0|0|700|consume_700|2026-03-09|skin_whale_012-1|iap_whale_012|Assets\Resources\Icon\skin\whale|0|0|1
+#상품명|key:string|slotindex:int|groupindex:int|orderindex:int|conditionType:int|conditionValue:int|minLevel:int|cashValue:int|paymentData:string|startDate:datetime|ItemNameSrt:string|imagePath:string|isFree:int|isAvail:int|isShow:int
+보석 패키지 1|dia_pack_1|1000|1|0|0|0|0|500|consume_500|2026-03-09|iap_package_diamond_700||0|0|1
+보석 패키지 2|dia_pack_2|1001|1|1|0|0|0|1000|consume_1000|2026-03-09|iap_package_diamond_1600||0|0|1
+보석 패키지 3|dia_pack_3|1002|1|2|0|0|0|2000|consume_2000|2026-03-09|iap_package_diamond_3300||0|0|1
+보석 패키지 4|dia_pack_4|1003|1|3|0|0|0|5000|consume_5000|2026-03-09|iap_package_diamond_8000||0|0|1
+보석 200개 묶음|dia_200|1100|1|0|3|0|0|200|consume_200|2026-03-09|iap_diamond_200|Assets\_UI\Sprite\currency\cur_diamond.psd|0|1|1
+보석 500개 묶음|dia_500|1101|1|1|3|0|0|500|consume_500|2026-03-09|iap_diamond_500|Assets\_UI\Sprite_noPack\shop\diamond_00|0|1|1
+보석 1000개 묶음|dia_1000|1102|1|2|3|0|0|1000|consume_1000|2026-03-09|iap_diamond_1000|Assets\_UI\Sprite_noPack\shop\diamond_01|0|1|1
+보석 2000개 묶음|dia_2000|1103|1|3|3|0|0|2000|consume_2000|2026-03-09|iap_diamond_2000|Assets\_UI\Sprite_noPack\shop\diamond_02|0|1|1
+보석 5000개 묶음|dia_5000|1104|1|4|3|0|0|5000|consume_5000|2026-03-09|iap_diamond_5000|Assets\_UI\Sprite_noPack\shop\diamond_03|0|1|1
+보석 10000개 묶음|dia_10000|1105|1|5|3|0|0|10000|consume_10000|2026-03-09|iap_diamond_10000|Assets\_UI\Sprite_noPack\shop\diamond_04|0|1|1
+포션 1개|potion_1|2000|2|0|3|0|0|10|consume_10|2026-03-09|iap_potion_1|Assets\_UI\Sprite\currency\cur_potion.psd|0|1|1
+포션 10개|potion_10|2001|2|1|3|0|0|100|consume_100|2026-03-09|iap_potion_10|Assets\_UI\Sprite_noPack\shop\potion_10|0|1|1
+포션 100개|potion_100|2002|2|2|3|0|0|1000|consume_1000|2026-03-09|iap_potion_100|Assets\_UI\Sprite_noPack\shop\potion_27|0|1|1
+포션 200개|potion_200|2003|2|3|3|0|0|2000|consume_2000|2026-03-09|iap_potion_200|Assets\_UI\Sprite_noPack\shop\potion_60|0|1|1
+포션 500개|potion_500|2004|2|4|3|0|0|5000|consume_5000|2026-03-09|iap_potion_500|Assets\_UI\Sprite_noPack\shop\potion_135|0|1|1
+포션 1000개|potion_1000|2005|2|5|3|0|0|10000|consume_10000|2026-03-09|iap_potion_1000|Assets\_UI\Sprite_noPack\shop\potion_300|0|1|1
+특성 패키지 1|mastery_pack_1|3000|3|0|0|0|0|500|consume_500|2026-03-09|iap_package_mastery_600||0|0|1
+특성 패키지 2|mastery_pack_2|3001|3|1|0|0|0|2000|consume_2000|2026-03-09|iap_package_mastery_2600||0|0|1
+특성 패키지 3|mastery_pack_3|3002|3|2|0|0|0|5000|consume_5000|2026-03-09|iap_package_mastery_7500||0|0|1
+특성 패키지 4|mastery_pack_4|3003|3|3|0|0|0|10000|consume_10000|2026-03-09|iap_package_mastery_18000||0|0|1
+진주 패키지 1|gem_pack_1|4000|4|0|0|0|0|500|consume_500|2026-03-09|iap_package_gem_4000||0|0|1
+진주 패키지 2|gem_pack_2|4001|4|1|0|0|0|2000|consume_2000|2026-03-09|iap_package_gem_17500||0|0|1
+진주 패키지 3|gem_pack_3|4002|4|2|0|0|0|5000|consume_5000|2026-03-09|iap_package_gem_49000||0|0|1
+진주 패키지 4|gem_pack_4|4003|4|3|0|0|0|10000|consume_10000|2026-03-09|iap_package_gem_120000||0|0|1
+일일 추가 보상권 7개|vip_1|100|0|0|3|0|0|500|consume_500|2026-03-09|iap_vip_7||0|1|1
+성장 패스1|growth_pass_1|10000|100|0|4|0|0|1000|consume_1000|2026-03-09|iap_growth_pass_1||0|0|1
+성장 패스2|growth_pass_2|10001|100|1|4|11|0|2000|consume_2000|2026-03-09|iap_growth_pass_2||0|0|1
+성장 패스3|growth_pass_3|10002|100|2|4|21|0|3000|consume_3000|2026-03-09|iap_growth_pass_3||0|0|1
+성장 패스4|growth_pass_4|10003|100|3|4|31|0|5000|consume_5000|2026-03-09|iap_growth_pass_4||0|0|1
+성장 패스5|growth_pass_5|10004|100|4|4|41|0|6000|consume_6000|2026-03-09|iap_growth_pass_5||0|0|1
+성장 패스6|growth_pass_6|10005|100|5|4|51|0|7000|consume_7000|2026-03-09|iap_growth_pass_6||0|0|1
+표류자 지원 패키지 1|newbie_pack_1|5000|5|0|0|0|0|100|consume_100|2026-03-09|iap_newbie_pack_1||0|0|1
+표류자 지원 패키지 2|newbie_pack_2|5001|5|1|0|0|0|500|consume_500|2026-03-09|iap_newbie_pack_2||0|0|1
+표류자 지원 패키지 3|newbie_pack_3|5002|5|2|0|0|0|1000|consume_1000|2026-03-09|iap_newbie_pack_3||0|0|1
+표류자 지원 패키지 4|newbie_pack_4|5003|5|3|0|0|0|3000|consume_3000|2026-03-09|iap_newbie_pack_4||0|0|1
+산호초 고래|whale_001|6000|6|0|3|0|0|700|consume_700|2026-03-09|iap_whale_001|Assets\Resources\Icon\skin\whale|0|0|1
+범고래|whale_002|6001|6|1|3|0|0|700|consume_700|2026-03-09|iap_whale_002|Assets\Resources\Icon\skin\whale|0|0|1
+세일러복 고래|whale_003|6002|6|2|3|0|0|700|consume_700|2026-03-09|iap_whale_003|Assets\Resources\Icon\skin\whale|0|0|1
+집사복 고래|whale_004|6003|6|3|3|0|0|700|consume_700|2026-03-09|iap_whale_004|Assets\Resources\Icon\skin\whale|0|0|1
+은하수 고래|whale_005|6004|6|4|3|0|0|700|consume_700|2026-03-09|iap_whale_005|Assets\Resources\Icon\skin\whale|0|0|1
+솜사탕 고래|whale_006|6005|6|5|3|0|0|700|consume_700|2026-03-09|iap_whale_006|Assets\Resources\Icon\skin\whale|0|0|1
+스노클링 고래|whale_007|6006|6|6|3|0|0|700|consume_700|2026-03-09|iap_whale_007|Assets\Resources\Icon\skin\whale|0|0|1
+향유 고래|whale_008|6007|6|7|3|0|0|700|consume_700|2026-03-09|iap_whale_008|Assets\Resources\Icon\skin\whale|0|0|1
+체리 블로섬 고래|whale_009|6008|6|8|3|0|0|700|consume_700|2026-03-09|iap_whale_009|Assets\Resources\Icon\skin\whale|0|0|1
+돌고래|whale_010|6009|6|9|3|0|0|700|consume_700|2026-03-09|iap_whale_010|Assets\Resources\Icon\skin\whale|0|0|1
+서부의 고래|whale_011|6010|6|10|3|0|0|700|consume_700|2026-03-09|iap_whale_011|Assets\Resources\Icon\skin\whale|0|0|1
+고래 상어|whale_012|6011|6|11|3|0|0|700|consume_700|2026-03-09|iap_whale_012|Assets\Resources\Icon\skin\whale|0|0|1
