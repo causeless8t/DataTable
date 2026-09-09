@@ -60,6 +60,7 @@ namespace Causeless3t.Table
                     TableGenerationState.WaitingForCompilation = true;
 
                     AssetDatabase.Refresh();
+                    EditorUtility.ClearProgressBar();
                     return;
                 }
 

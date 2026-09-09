@@ -37,6 +37,10 @@ namespace Causeless3t.Table
                 TableGenerationState.Clear();
                 Debug.LogException(e);
             }
+            finally
+            {
+                EditorUtility.ClearProgressBar();
+            }
         }
     }
 }
