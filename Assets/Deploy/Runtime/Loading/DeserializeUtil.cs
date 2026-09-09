@@ -13,7 +13,7 @@ namespace Causeless3t.Table
 
             var dataObject = new DynamicDataObject<T>();
             int count = br.ReadInt32();
-            int idFieldIndex = br.ReadInt32();
+            string idFieldName = br.ReadString();
 
             var recordType = typeof(T);
             var readMethod = recordType.GetMethod("Read", new[] { typeof(BinaryReader) });
@@ -22,8 +22,23 @@ namespace Causeless3t.Table
             {
                 throw new MissingMethodException(recordType.FullName, "Read(BinaryReader)");
             }
+            
+            FieldInfo idField = null;
 
-            var fields = recordType.GetFields(BindingFlags.NonPublic | BindingFlags.Instance);
+            if (!string.IsNullOrEmpty(idFieldName))
+            {
+                idField = recordType.GetField(
+                    $"_{idFieldName}",
+                    BindingFlags.NonPublic |
+                    BindingFlags.Instance);
+
+                if (idField == null)
+                {
+                    throw new MissingFieldException(
+                        recordType.FullName,
+                        $"_{idFieldName}");
+                }
+            }
 
             for (int i = 0; i < count; i++)
             {
@@ -31,16 +46,19 @@ namespace Causeless3t.Table
                 readMethod.Invoke(record, new object[] { br });
 
                 dataObject.List.Add(record);
+                
+                if (idField == null)
+                    continue;
 
-                // ID 필드 인덱스를 사용하여 Map에 추가
-                if (idFieldIndex >= 0 && idFieldIndex < fields.Length)
-                {
-                    var idValue = fields[idFieldIndex].GetValue(record)?.ToString();
-                    if (!string.IsNullOrEmpty(idValue))
-                    {
-                        dataObject.Map.TryAdd(idValue, record);
-                    }
-                }
+                var idValue =
+                    idField.GetValue(record)?.ToString();
+
+                if (string.IsNullOrEmpty(idValue))
+                    continue;
+
+                dataObject.Map.TryAdd(
+                    idValue,
+                    record);
             }
 
             return dataObject;

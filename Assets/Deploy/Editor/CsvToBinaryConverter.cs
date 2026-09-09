@@ -189,7 +189,7 @@ namespace Causeless3t.Table
                 throw new MissingMethodException("DynamicDataObject collection method not found.");
             }
             
-            int idFieldIndex = -1;
+            string idFieldName = null;
             bool isValidDict = true;
             for (int i = 1; i < lines.Length; i++)
             {
@@ -213,15 +213,9 @@ namespace Causeless3t.Table
                 if (idIndex == -1 || string.IsNullOrEmpty(id))
                     continue;
 
-                // Calculate idFieldIndex based on the first valid idIndex found
-                if (idFieldIndex == -1)
+                if (idFieldName == null)
                 {
-                    idFieldIndex = 0;
-                    for (int j = 0; j < idIndex; j++)
-                    {
-                        if (validColumns[j])
-                            idFieldIndex++;
-                    }
+                    idFieldName = schema[idIndex].propName;
                 }
 
                 var record = Activator.CreateInstance(recordType);
@@ -250,14 +244,14 @@ namespace Causeless3t.Table
             if (dictClear != null && !isValidDict)
                 dictClear.Invoke(dataDictObj, null);
 
-            var binary = SerializeObject(dataObject, idFieldIndex);
+            var binary = SerializeObject(dataObject, idFieldName);
             var encrypted = AesEncryption.Encrypt(binary, aesKey);
             File.WriteAllBytes(outputBinaryPath, encrypted);
 
             Debug.Log($"CSV 변환 완료: {outputBinaryPath}");
         }
 
-        private static byte[] SerializeObject(object obj, int idFieldIndex)
+        private static byte[] SerializeObject(object obj, string idFieldName)
         {
             using var ms = new MemoryStream();
             using var bw = new BinaryWriter(ms);
@@ -267,17 +261,24 @@ namespace Causeless3t.Table
             if (listField?.GetValue(obj) is IList listObj)
             {
                 bw.Write(listObj.Count);
-                bw.Write(idFieldIndex);
+                bw.Write(idFieldName ?? string.Empty);
                 foreach (var record in listObj)
                 {
                     var writeMethod = record.GetType().GetMethod("Write", new[] { typeof(BinaryWriter) });
-                    writeMethod?.Invoke(record, new object[] { bw });
+                    if (writeMethod == null)
+                    {
+                        throw new MissingMethodException(
+                            record.GetType().FullName,
+                            "Write(BinaryWriter)");
+                    }
+                    
+                    writeMethod.Invoke(record, new object[] { bw });
                 }
             }
             else
             {
                 bw.Write(0);
-                bw.Write(-1);
+                bw.Write(string.Empty);
             }
 
             return ms.ToArray();
