@@ -13,6 +13,44 @@ public class TableGenerator : Editor
 {
     private static readonly string CSVPath = Path.Combine(Application.dataPath, "__Main", "Table");
     
+    [MenuItem("Assets/TSV > CSV 구분자 변환", true)] // true 인자는 활성화 여부를 제어
+    private static bool ValidateConvertTSVFiles()
+    {
+        // 선택한 파일이 CSV 파일만 포함하는지 체크
+        var selectedAssets = Selection.GetFiltered<Object>(SelectionMode.Assets);
+        bool allCSV = selectedAssets.All(asset =>
+        {
+            string assetPath = AssetDatabase.GetAssetPath(asset);
+            return Path.GetExtension(assetPath).ToLower() == ".tsv";
+        });
+        return allCSV;
+    }
+
+    [MenuItem("Assets/TSV > CSV 구분자 변환")]
+    private static async UniTask ConvertTSVFiles()
+    {
+        // 선택한 CSV 파일들에 대해 작업 실행
+        var selectedAssets = Selection.GetFiltered<Object>(SelectionMode.Assets);
+        int completed = 0;
+        EditorUtility.ClearProgressBar();
+        foreach (var asset in selectedAssets)
+        {
+            string assetPath = AssetDatabase.GetAssetPath(asset);
+            string targetPath = Path.Combine(CSVPath, $"{Path.GetFileNameWithoutExtension(assetPath)}.csv");
+            EditorUtility.DisplayProgressBar("파일 변환 중", $"{targetPath} ({completed}/{selectedAssets.Length})", (float)completed / selectedAssets.Length);
+            string tsv = await File.ReadAllTextAsync(assetPath);
+            string csv = tsv.Replace("\t", "|");
+            await File.WriteAllTextAsync(targetPath, csv);
+            File.Delete(assetPath);
+            completed++;
+            EditorUtility.DisplayProgressBar("파일 변환 중", $"{targetPath} ({completed}/{selectedAssets.Length})", (float)completed / selectedAssets.Length);
+        }
+        AssetDatabase.Refresh();
+        EditorUtility.ClearProgressBar();
+        // 작업이 완료되었음을 알리는 다이얼로그 띄우기
+        EditorUtility.DisplayDialog("작업 완료", "TSV > CSV(|) 파일 처리가 완료되었습니다.", "확인");
+    }
+    
     [MenuItem("Assets/테이블 생성", true)] // true 인자는 활성화 여부를 제어
     private static bool ValidateConvertCSVFiles()
     {

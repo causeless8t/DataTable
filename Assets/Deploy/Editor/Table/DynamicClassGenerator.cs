@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 public static class DynamicClassGenerator
 {
     private static readonly string SourcePath = Path.Combine(Application.dataPath, "__Main", "Script", "Tables");
     
-    public static async Generate(string className, List<(string propName, string typeName)> schema, List<bool> validColumns)
+    public static async UniTask Generate(string className, List<(string propName, string typeName)> schema, List<bool> validColumns)
     {
         var path = Path.Combine(SourcePath, $"{className}.cs");
         var code = new StringBuilder();
