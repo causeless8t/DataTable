@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 
 [AttributeUsage(AttributeTargets.Class)]
-public class TableDataAttribute : Attribute
+public class TableDataAttribute : PreserveAttribute
 {
 }
 
