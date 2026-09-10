@@ -1,12 +1,16 @@
 {
   "name": "com.causeless3t.datatable",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "displayName": "DataTable",
   "description": "데이터 테이블",
-  "changelogUrl": "https://github.com/causeless8t/DataTable.git/Assets/Deploy/CHANGELOG.md",
+  "changelogUrl": "https://github.com/causeless8t/DataTable.git/CHANGELOG.md",
   "unity": "2022.3",
-  "author": "causeless3t",
+  "author": {
+    "name": "Hamin Jeong",
+    "url": "https://github.com/causeless8t"
+  },
   "keywords": [
+    "unity",
     "DataTable"
   ],
   "gitDependencies": {}
