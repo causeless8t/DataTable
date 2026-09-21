@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine.Scripting;
 
 [AttributeUsage(AttributeTargets.Class)]
 public class TableDataAttribute : PreserveAttribute
