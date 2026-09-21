@@ -84,10 +84,13 @@ namespace Causeless3t.Table
 
             foreach (var textAsset in selectedAssets)
             {
-                Directory.CreateDirectory(DataTableSettingsProvider.Settings.EncryptedDataPath);
+                var encryptedDataPath = DataTableSettingsProvider.GetAbsolutePath(
+                    DataTableSettingsProvider.Settings.EncryptedDataPath);
+
+                Directory.CreateDirectory(encryptedDataPath);
                 
                 var targetPath = Path.Combine(
-                    DataTableSettingsProvider.Settings.EncryptedDataPath,
+                    encryptedDataPath,
                     $"{textAsset.name}_encry.bytes");
 
                 EditorUtility.DisplayProgressBar(
@@ -268,7 +271,8 @@ namespace Causeless3t.Table
                 sb.AppendLine();
             }
 
-            var outputDirectory = DataTableSettingsProvider.Settings.CsvSourcePath;
+            var outputDirectory = DataTableSettingsProvider.GetAbsolutePath(
+                DataTableSettingsProvider.Settings.CsvSourcePath);
 
             Directory.CreateDirectory(outputDirectory);
 
