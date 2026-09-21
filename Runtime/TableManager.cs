@@ -35,11 +35,6 @@ namespace Causeless3t.Table
             _tables.Clear();
             var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(assembly => assembly.GetTypes())
                 .Where(t => t.IsDefined(typeof(TableDataAttribute)));
-            var method = typeof(TableManager)
-                .GetMethod("LoadData", BindingFlags.NonPublic | BindingFlags.Static);
-            
-            if (method == null)
-                throw new MissingMethodException(nameof(LoadData));
             
             foreach (var type in types)
             {
@@ -57,7 +52,7 @@ namespace Causeless3t.Table
             var method = typeof(TableManager).GetMethod(
                 nameof(LoadData),
                 BindingFlags.NonPublic |
-                BindingFlags.Static);
+                BindingFlags.Instance);
 
             if (method == null)
                 throw new MissingMethodException(nameof(LoadData));
@@ -65,7 +60,7 @@ namespace Causeless3t.Table
             var genericMethod = method.MakeGenericMethod(type);
 
             if (genericMethod.Invoke(
-                    null,
+                    this,
                     new object[] { type.Name }) is not Task task)
             {
                 throw new InvalidOperationException($"Failed to load table type: {type.Name}");
@@ -84,6 +79,7 @@ namespace Causeless3t.Table
         }
 
         // 바이너리 파일을 로드하여 데이터를 복원하는 메서드
+        [Preserve]
         private async Task<DynamicDataObject<T>> LoadData<T>(string fileName) where T : class, new()
         {
             try
