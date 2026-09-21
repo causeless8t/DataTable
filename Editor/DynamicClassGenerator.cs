@@ -11,7 +11,8 @@ namespace Causeless3t.Table
         public static bool Generate(string className, List<(string propName, string typeName)> schema,
             List<bool> validColumns)
         {
-            var outputDirectory = DataTableSettingsProvider.Settings.GeneratedCodePath;
+            var outputDirectory = DataTableSettingsProvider.GetAbsolutePath(
+                DataTableSettingsProvider.Settings.GeneratedCodePath);
 
             Directory.CreateDirectory(outputDirectory);
 
