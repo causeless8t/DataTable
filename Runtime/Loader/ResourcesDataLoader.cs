@@ -1,4 +1,3 @@
-using System.IO;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -8,9 +7,13 @@ namespace Causeless3t.Table
     {
         public async Task<byte[]> LoadAsync(string filename)
         {
-            var path = DataTableRuntimeSettingsProvider.TableSettings.EncryptedDataPath.Replace(
-                Path.Combine(Application.dataPath, "Resources") + Path.DirectorySeparatorChar, "");
-            var request = Resources.LoadAsync<TextAsset>(Path.Combine(path, filename));
+            var directory = DataTableRuntimeSettingsProvider
+                .TableSettings
+                .EncryptedDataResourcesPath;
+            var path = string.IsNullOrEmpty(directory)
+                ? filename
+                : $"{directory}/{filename}";
+            var request = Resources.LoadAsync<TextAsset>(path);
 
             var tcs = new TaskCompletionSource<TextAsset>();
 
