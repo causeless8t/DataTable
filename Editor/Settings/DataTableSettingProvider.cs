@@ -29,6 +29,17 @@ namespace Causeless3t.Table
             }
         }
 
+        public static string GetAbsolutePath(string projectRelativePath)
+        {
+            var projectRoot = Directory.GetParent(Application.dataPath)?.FullName;
+
+            if (string.IsNullOrEmpty(projectRoot))
+                throw new DirectoryNotFoundException("Unity project root could not be resolved.");
+
+            return Path.GetFullPath(
+                Path.Combine(projectRoot, projectRelativePath));
+        }
+
         private static DataTableSettings LoadSettings()
         {
             var settings =
@@ -36,7 +47,7 @@ namespace Causeless3t.Table
                     SettingsPath);
 
             if (settings != null)
-                return settings;
+                return NormalizeSettings(settings);
 
             var guids = AssetDatabase.FindAssets(
                 $"t:{nameof(DataTableSettings)}");
@@ -47,8 +58,19 @@ namespace Causeless3t.Table
             var path =
                 AssetDatabase.GUIDToAssetPath(guids[0]);
 
-            return AssetDatabase.LoadAssetAtPath<DataTableSettings>(
-                path);
+            return NormalizeSettings(
+                AssetDatabase.LoadAssetAtPath<DataTableSettings>(path));
+        }
+
+        private static DataTableSettings NormalizeSettings(
+            DataTableSettings settings)
+        {
+            if (settings == null || !settings.NormalizeSerializedPaths())
+                return settings;
+
+            EditorUtility.SetDirty(settings);
+            AssetDatabase.SaveAssets();
+            return settings;
         }
 
         private static DataTableSettings CreateSettings()
