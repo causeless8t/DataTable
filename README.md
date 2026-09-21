@@ -80,6 +80,8 @@ Encrypted Data Path
 
 설정은 프로젝트의 `Assets/Resources/DataTableSettings.asset`에 저장됩니다.
 
+모든 폴더 경로는 `Assets/...` 형식의 프로젝트 상대경로로 저장됩니다. 이전 버전에서 저장된 절대경로는 설정을 불러올 때 자동으로 프로젝트 상대경로로 변환됩니다.
+
 프로젝트 구조에 맞게 Namespace와 각 경로를 변경할 수 있습니다.
 
 ---
