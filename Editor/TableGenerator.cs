@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEditor;
+using UnityEditor.Compilation;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -60,6 +61,7 @@ namespace Causeless3t.Table
                     TableGenerationState.WaitingForCompilation = true;
 
                     AssetDatabase.Refresh();
+                    CompilationPipeline.RequestScriptCompilation();
                     EditorUtility.ClearProgressBar();
                     return;
                 }

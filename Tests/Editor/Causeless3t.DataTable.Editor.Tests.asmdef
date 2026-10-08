@@ -1,0 +1,7 @@
+{
+    "name": "Causeless3t.DataTable.Editor.Tests",
+    "references": ["Causeless3t.DataTable", "Causeless3t.DataTable.Editor"],
+    "includePlatforms": ["Editor"],
+    "optionalUnityReferences": ["TestAssemblies"],
+    "autoReferenced": false
+}

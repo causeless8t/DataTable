@@ -331,6 +331,8 @@ Schema 변경으로 생성되는 C# 코드가 달라지면 Unity Script Compilat
 
 반대로 데이터만 변경되어 생성 코드가 동일한 경우에는 Script Compilation 없이 바로 Binary Table을 다시 생성합니다.
 
+생성된 소스가 이미 최신이어도 현재 로드된 타입이 이전 스키마이면 컴파일을 요청하고 Domain Reload 후 변환합니다. 컬럼 이름·타입·순서를 포함한 스키마 서명으로 로드된 타입을 검증하며, 불일치 상태에서는 Binary를 덮어쓰지 않습니다. 패키지 업데이트 후 최초 생성 시 기존 클래스에 서명을 추가하기 위한 컴파일이 한 번 발생합니다.
+
 ---
 
 # Generated Binary Format

@@ -31,20 +31,17 @@ namespace Causeless3t.Table
         {
             var type = FindTypeByName(className);
 
-            if (type != null && IsTypeCompatible(type, schema, validColumns))
-            {
-                return false;
-            }
-
-            if (DynamicClassGenerator.Generate(
+            var codeChanged = DynamicClassGenerator.Generate(
                     className,
                     schema,
-                    validColumns))
+                    validColumns);
+            if (codeChanged)
             {
                 Debug.Log($"[{className}] 스키마 클래스 코드를 생성했습니다.");
-                return true;
             }
-            return false;
+
+            // 최신 소스가 디스크에 있어도 현재 Domain에는 이전 타입이 남아 있을 수 있습니다.
+            return codeChanged || type == null || !IsTypeCompatible(type, schema, validColumns);
         }
 
         private static List<(string propName, string typeName)> ParseSchema(string[] schemaParts,
@@ -93,6 +90,14 @@ namespace Causeless3t.Table
         private static bool IsTypeCompatible(Type type, List<(string propName, string typeName)> schema,
             List<bool> validColumns)
         {
+            var signature = type.GetField(
+                "__DataTableSchemaSignature",
+                BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.DeclaredOnly);
+            if (signature == null || !signature.IsLiteral ||
+                !Equals(signature.GetRawConstantValue(),
+                    DynamicClassGenerator.GetSchemaSignature(schema, validColumns)))
+                return false;
+
             var writeMethod = type.GetMethod("Write", new[] { typeof(BinaryWriter) });
             if (writeMethod == null)
                 return false;
