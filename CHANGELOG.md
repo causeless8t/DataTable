@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.1.2] - 2026-10-08
 ### Fixed
 - 생성 소스가 최신이어도 이전 스키마 타입이 로드되어 있으면 컴파일 및 Domain Reload 후 테이블 변환 재개
 - 스키마 서명으로 컬럼 이름·타입·순서를 검증하여 이전 직렬화 코드 사용 방지
