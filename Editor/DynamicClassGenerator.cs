@@ -1,6 +1,7 @@
 #if UNITY_EDITOR
 using System.Collections.Generic;
 using System.IO;
+using System.Security.Cryptography;
 using System.Text;
 using UnityEngine;
 
@@ -28,6 +29,7 @@ namespace Causeless3t.Table
             code.AppendLine("    [Serializable][TableData]");
             code.AppendLine($"    public class {className}");
             code.AppendLine("    {");
+            code.AppendLine($"        private const string __DataTableSchemaSignature = \"{GetSchemaSignature(schema, validColumns)}\";");
 
             for (int i = 0; i < schema.Count; i++)
             {
@@ -154,6 +156,26 @@ namespace Causeless3t.Table
 
             File.WriteAllText(path, code.ToString());
             return true;
+        }
+
+        internal static string GetSchemaSignature(
+            List<(string propName, string typeName)> schema, List<bool> validColumns)
+        {
+            var contract = new StringBuilder();
+            for (var i = 0; i < schema.Count; i++)
+            {
+                if (!validColumns[i])
+                    continue;
+
+                var (name, typeName) = schema[i];
+                var type = TypeParser.GetFieldType(typeName.ToLowerInvariant());
+                contract.Append(name.Length).Append(':').Append(name)
+                    .Append(':').Append(type?.FullName).Append(';');
+            }
+
+            using var sha = SHA256.Create();
+            var hash = sha.ComputeHash(Encoding.UTF8.GetBytes(contract.ToString()));
+            return System.BitConverter.ToString(hash).Replace("-", string.Empty);
         }
     }
 }
